@@ -1,0 +1,142 @@
+\documentclass{ci5652}
+\usepackage{graphicx,amssymb,amsmath}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{hyperref}
+\usepackage{subfigure}
+\usepackage{paralist}
+\usepackage[ruled,vlined,linesnumbered]{algorithm2e}
+
+\setlength{\parskip}{1em}
+
+%----------------------- Macros and Definitions --------------------------
+
+% Add all additional macros here, do NOT include any additional files.
+
+% The environments theorem (Theorem), invar (Invariant), lemma (Lemma),
+% cor (Corollary), obs (Observation), conj (Conjecture), and prop
+% (Proposition) are already defined in the ci5652.cls file.
+
+%----------------------- Title -------------------------------------------
+
+\title{Proposición de solución al problema Maximum Diversity Problem (MDP)}
+
+\author{Cristian Medina
+        \and
+        Manuel Pacheco}
+
+%------------------------------ Text -------------------------------------
+
+\begin{document}
+\thispagestyle{empty}
+\maketitle
+
+
+\begin{abstract}
+El problema de máxima diversidad (Maximum Diversity Problem), consiste en elegir M elementos de un conjunto de N elementos tal que las suma de las distancias entre los elementos elegidos sea la máxima posible.
+Las aplicaciones de este problema se pueden  encontrar en estudios genéticos, sistemas ecológicos, controles de inmigración, tratamientos médicos, entre otros. Ha sido un caso de estudio para la aplicación de heurísticas y metaheurísticas, particularmente para la búsqueda local.
+Fue catalogado como un problema NP-Hard en 1993 por Kou, Glover y Dhit al reducir el problema de clique a MDP.
+
+Kou introdujo la siguiente formulación del problema:
+$$\sum_{i=1}^{n-1} \sum_{j=i+1}^n d_{ij}x_ix_j$$
+Donde  es la cardinalidad de elementos del conjunto,  la cantidad de elementos elegidos,  es la distancia entre el elemento  y el elemento ,   es una función booleana que toma el valor de 1 si el elemento  fue elegido, 0 si no fue elegido.
+\end{abstract}
+
+\section{Trabajos Previos}
+El problema de máxima diversidad ha sido estudiado aplicando múltiples heurísticas y metahaurísticas. En general todas las heurísticas estudiadas presentan buenos resultados, sin embargo, se destacan las de búsqueda local al poseer resultados de mejor calidad para la mayor parte de los casos de prueba.
+
+Se destaca en particular el Basic VNS por Brimberg~\cite{vnsbrimberg}. Este consiste en una estructura de datos eficiente que representa los conjuntos de datos actualizados, del cual genera aleatoriamente una solución parcial a la cual le aplica una búsqueda local intercambiando los elementos de su solución con los elementos no incluidos.
+En un segundo lugar, se encuentra el VNS implementado por Aringhieri y Cordone~\cite{vnsarincor}, el cual consiste en una construcción de una solución con un método greedy y un posterior procesamiento cambiando k elementos de la solución y aplicando una búsqueda tabú simple sobre esta.
+
+Para casos de prueba de mayor tamaño, se destaca las búsquedas en Tabú. Un ejemplo de esta es la presentada por Palubeckis~\cite{palubeckis}, una búsqueda Tabú iterativa que alterna entre búsqueda tabú y técnicas de perturbación. Cuando la búsqueda Tabú encuentra un resultado mejor al inicial, utiliza una búsqueda local a la nueva solución. Su método de perturbación es una selección de elementos aleatorios del conjunto para viajar por el espacio de soluciones. Para casos pequeños este método se desempeña bien, pero no es el mejor.
+
+Cabe destacar también los estrategias GRASP desarrolladas por Silva et~\cite{silva}, donde se construye una solución parcial inicial y se mejora de forma iterativa; y la propuesta por Duarte y Martí~\cite{duarmar}, que parten de la heurística propuesta por Glover de C2 y D2, aplicándole su propia metodología GRASP.
+
+\section{Representación del Problema}
+En la implementación propuesta, se representan el problema con 3 vectores. Uno donde se almacenan todos los arcos, otro donde se almacena los nodos elegidos para la solución y otro donde se almacenan los elementos no elegidos. Se construye la solución inicial a partir de los elementos cuya media de distancia de los arcos sea mayor.
+
+Siendo el vector S de M elementos la solución inicial, se toma el último elemento del vector y se intercambia aleatoriamente con alguno del vector de elementos no elegidos y se prueba si esta nueva solución es mejor que la que se tenía. De ser mejor, se actualiza el vector de solución y se continúa iterando.
+
+Después de probarse todas las combinaciones con esa posición, o de exceder un número determinado de iteraciones, se pasa a la siguiente vecindad que vendría siendo las posibilidades con penúltimo elemento del vector usando el mismo procedimiento, así hasta recorrer todo el vector, o alcanzar la cota máxima de iteraciones.
+
+\section{Algoritmo de Búsqueda Local}
+\begin{algorithm}
+  \DontPrintSemicolon
+  \vspace*{0.1cm}
+  $V \leftarrow$ vector de arcos\;
+  $S \leftarrow$ vector solución inicial\;
+  $C \leftarrow$ vector de elementos no elegidos\;
+  $IS \leftarrow \emptyset$ // conjunto de cambios probados\;
+  $Itera \leftarrow true$ // cota de salida\;
+  $localIter \leftarrow 0$\;
+  $totalIter \leftarrow 0$\;
+  $pivote \leftarrow |S|-1$\;
+  $distanciaActual = Distancia(S)$\;
+  \While{true}{
+    \eIf{$localIter < MAX\_LOCAL\_LITER \land localIter < |Nodos| - |S|$}{
+      $NodoAleatorio \leftarrow Rand(C)$\;
+      \If{$NodoAleatorio \in IS$}{
+        \textbf{continue}\;
+      }
+      IS $\leftarrow IS \cup \{NodoAleatorio\}$\;
+      $respaldo \leftarrow pivote$\;
+      $pivote \leftarrow nodoAleatorio$\;
+      \eIf{$Distancia(S) > distanciaActual$}{
+        $DistanciaActual = Distancia(S)$\;
+        $C = C - nodoAleatorio + respaldo$\;
+      }{
+        $pivote = Respaldo$\;
+      }
+      $localIter++$\;
+      $totalIter++$\;
+    }{
+      $IS \leftarrow \emptyset$\;
+      $localIter = 0$\;
+      $pivote--$\;
+    }
+    \If{$totalIter > MAX\_ITER \lor pivote < 0$}{
+      \KwRet{$distanciaActual$}\;
+    }
+  }
+\end{algorithm}
+
+%---------------------------- Bibliography -------------------------------
+
+% Please add the contents of the .bbl file that you generate,  or add bibitem entries manually if you like.
+% The entries should be in alphabetical order
+\small
+\bibliographystyle{abbrv}
+
+\begin{thebibliography}{99}
+
+\bibitem{vnsbrimberg}
+Brimberg, J., N. Mladenovic, D. Urosevic and E. Ngai. (2009).
+\newblock Variable neighborhood search for the heaviest k-subgraph.
+\newblock {\em Computers $\&$ Operations Research}, 36(11): 2885-2891.
+
+\bibitem{vnsarincor}
+R. Aringhieri and R. Cordone.
+\newblock Better and faster solutions for the maximum diversity problem.
+\newblock {\em Technical report, Universit degli Studi di Milano, Polo Didattico e di Ricerca di Crema}, 2006.
+
+\bibitem{silva}
+G.C. Silva, M.R.Q. Andrade, L.S. Ochi, S.L. Martins, and A. Plastino.
+\newblock New heuristics for the maximum diversity problem.
+\newblock {\em Journal of Heuristics}, 13(4):315–336, 2007.
+
+\bibitem{duarmar}
+R. Aringhieri, R. Cordone, and Y. Melzani.
+\newblock Tabu search vs. grasp for the maximum diversity problem.
+\newblock {\em A Quarterly Journal of Operations Research}, 6(1):45–60, 2008.
+
+\bibitem{palubeckis}
+G. Palubeckis.
+\newblock Iterated tabu search for the maximum diversity problem.
+\newblock {\em Applied Mathematics and Computation}, 189:371383, 2007.
+
+
+
+
+\end{thebibliography}
+
+\end{document}
