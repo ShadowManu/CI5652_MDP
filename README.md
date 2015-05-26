@@ -1,7 +1,7 @@
 # CI5652_MDP
 **Proyecto del curso de Diseño de Algoritmos II de la Universidad Simón Bolívar.**
 
-Autores:
+## Autores:
 * Cristian Medina *10-10445*
 * Manuel Pacheco *10-10524*
 
@@ -9,9 +9,9 @@ Autores:
 El proyecto es un estudio del resultado de la aplicación de metaheurísticas de
 búsqueda local, trayectoria y poblacionales para la resolución del problema
 MDP descrito en [opticom.es](http://www.optsicom.es/mdp/) a través de la
-implentación de las metaheurísticas en el lenguaje C.
+implementación de las metaheurísticas en el lenguaje C++.
 
-## Instancias del problema utilazados
+## Instancias del problema utilizados
 Actualmente el repositorio contiene una serie de instancias contenidas en el
 directorio `testcases` para las pruebas iniciales, mas queda pendiente
 seleccionar un conjunto final.
