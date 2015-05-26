@@ -53,7 +53,7 @@ void initSolution(){
 
 	//Cola de prioridad para los nodos en funcion de su coeficiente de distancia.
 	priority_queue <pair<int, double>,vector<pair<int,double>>,pairComp > pq;
-	
+
 	//Inicializa la cola de prioridad
 	for (int i = 0; i < numNodes; i++){
 		pair <int, double> dummy = make_pair(i, coefDistance[i]);
@@ -68,7 +68,7 @@ void initSolution(){
 		else {
 			notChosen.push_back(pq.top().first);
 		}
-		
+
 		pq.pop();
 	}
 }
@@ -93,7 +93,7 @@ int getPos(int a, int b){
 void printInput(){
 
 	cout << "Nodes #: " << numNodes << " Solution #: " << solutionSize << "\n";
-	
+
 	for (int i = 0; i < numNodes; i++) {
 		for (int j = 0; j < numNodes; j++) {
 			if (i < j){
@@ -131,7 +131,7 @@ void readInput(char* fileName){
 	matriz = (double*) malloc(numEdges*sizeof(double));
 	coefDistance = (double*) malloc(numNodes*sizeof(double));
 	solution = (int*)malloc(solutionSize*sizeof(int));
-	
+
 	for (int i = 0; i < numNodes; i++){
 		coefDistance[i] = 0;
 	}
@@ -156,7 +156,7 @@ void readInput(char* fileName){
 	Calcula la suma de las distancias de la solucion actual representada en el vector solucion
 */
 double calculateDistance(){
-	
+
 	double distance = 0;
 
 	for (int i = 0; i < solutionSize; i++){
@@ -186,7 +186,7 @@ void printDebug(double currentDistance){
 }
 
 /*
-	Procedimiento que imprieme datos sobre la iteración actual a ejecutar.
+	Procedimiento que imprieme datos sobre la iteraciï¿½n actual a ejecutar.
 */
 void printDebugIter(double currentDistance, int localIter, int totalIter, int Pivot, int newNode){
 	cout << "===============================================================================\n";
@@ -208,7 +208,7 @@ double localSearch(){
 	long totalIter = 0, localIter = 0;
 	int pivotNode = solutionSize-1, compareNode, oldNode, ncSize = numNodes-solutionSize;
 	set <int> lastTries;
-	
+
 	double currentDistance = calculateDistance(), newDistance;
 
 	if (DEBUG){
@@ -247,7 +247,7 @@ double localSearch(){
 			else {
 				solution[pivotNode] = oldNode;
 			}
-			
+
 			localIter++;
 			totalIter++;
 		}
@@ -291,7 +291,7 @@ int main(int argc, char *argv[]){
 		printInput();
 	}
 
-	
+
 	clock_t begin = clock();
 
 	initSolution();
