@@ -12,19 +12,37 @@
 
 using namespace std;
 
+class Problem;
+
+class Solution {
+public:
+    int nSolution;
+    vector<int> elements;
+    Problem *problem;
+
+    Solution(Problem *p);
+    double calcSolutionValue();
+    void initialSolution();
+    void getInitial();
+    void solLocalSearch();
+};
+
 class Problem {
+public:
     int nNodes;
     int nEdges;
     int nSolution;
 
     vector<double> matrix;
     vector<double>potentials;
-    vector<int> solution;
+    Solution solution;
 
     int matIndex(int, int);
-public:
-    Problem(string filename);
-    void solveProblem();
+
+    Problem(string);
+    double getEdge(int, int);
+    void solve();
+    void getInitial();
 };
 
 #endif //CI5652_MDP_PROBLEM_H

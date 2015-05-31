@@ -17,5 +17,12 @@ int main(int argc, char *argv[]) {
 
     // Create problem
     Problem prob(filename);
+
+    // Get initial solution
+    prob.getInitial();
+
+    // Solve problem
+    prob.solve();
+
     return 0;
 }
