@@ -5,6 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+#include <unordered_set>
 
 #include "Problem.h"
 
@@ -19,6 +20,50 @@ void Solution::getInitial() {
 
 void Solution::solLocalSearch() {
     // TODO COPY LOCAL SEARCH
+    const int ALLOWED_REPETITIONS = (int) ((problem->nNodes - nSolution) * 0.05);
+
+    double currentDistance = calcSolutionValue();
+
+    // For each node from right to left
+    for (int i=nSolution-1; i>=0; i--) {
+        int original = elements[i];
+        unordered_set<int>tested;
+        bool modified = false;
+        int newNode, lastNode;
+
+        // Search best replacing node from notChosen ones
+        // with a limited number of
+        for (int j=0;j<ALLOWED_REPETITIONS && tested.size()<notChosen.size();) {
+
+            // Choose an untested node from those not in solution
+            do {
+                newNode = (int) (rand() % notChosen.size());
+            } while (tested.find(newNode)!=tested.end());
+            tested.insert(newNode);
+
+            // Replace node
+            elements[i] = notChosen[newNode];
+            double newDistance = calcSolutionValue();
+
+            // Check if its an improvement
+            if (currentDistance < newDistance) {
+                currentDistance = newDistance;
+                lastNode = newNode;
+                modified = true;
+                j=0;
+            // Else, keep searching
+            } else {
+                j++;
+            }
+        }
+        // If modified, send best to solution and original to not chosen
+        if (modified) {
+            elements[i] = notChosen[lastNode];
+            notChosen[lastNode] = original;
+        }
+        // Else, put original back in its place
+        else elements[i] = original;
+    }
 }
 
 double Solution::calcSolutionValue() {
@@ -50,6 +95,11 @@ void Solution::initialSolution() {
     // Choose first nSolution as initial solution
     for (int i=0; i<nSolution; i++) {
         elements.push_back(ord_potentials[i].first);
+    }
+
+    // Classify others as not chosen
+    for (int i=nSolution; i<problem->nNodes; i++) {
+        notChosen.push_back(ord_potentials[i].first);
     }
 }
 
@@ -98,4 +148,8 @@ double Problem::getEdge(int i, int j) {
 
 void Problem::solve() {
     // TODO METAHEURISTICS
+}
+
+void Problem::solLocalSearch() {
+    solution.solLocalSearch();
 }

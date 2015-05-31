@@ -9,6 +9,7 @@
 #include <utility>
 #include <memory>
 #include <vector>
+#include <unordered_set>
 
 using namespace std;
 
@@ -18,12 +19,14 @@ class Solution {
 public:
     int nSolution;
     vector<int> elements;
-    Problem *problem;
+    vector<int> notChosen;
 
+    Problem *problem;
     Solution(Problem *p);
     double calcSolutionValue();
     void initialSolution();
     void getInitial();
+
     void solLocalSearch();
 };
 
@@ -43,6 +46,7 @@ public:
     double getEdge(int, int);
     void solve();
     void getInitial();
+    void solLocalSearch();
 };
 
 #endif //CI5652_MDP_PROBLEM_H

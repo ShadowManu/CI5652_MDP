@@ -21,6 +21,11 @@ int main(int argc, char *argv[]) {
     // Get initial solution
     prob.getInitial();
 
+    // TEST LOCAL SEARCH
+//    for (int i=0; i<10; i++) {
+//        prob.solLocalSearch();
+//    }
+
     // Solve problem
     prob.solve();
 
