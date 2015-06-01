@@ -1,6 +1,10 @@
-//
-// Created by shadowmanu on 28/05/15.
-//
+/**
+ * Problem and Solution implementation
+ *
+ * Authors:
+ *      Manuel Pacheco | 10-10524
+ *      Cristian Medina | 10-10445
+ */
 
 #include <iostream>
 #include <fstream>
@@ -11,64 +15,142 @@
 
 using namespace std;
 
-Solution::Solution(Problem *p) : problem(p) {}
+/*********** SOLUTION IMPLEMENTATION **********/
 
+/**
+ * Solution Constructor
+ */
+Solution::Solution(Problem *p) : problem(p), nSolution(0), value(0) {}
+
+/**
+ * Finish solution startup (including initialSolution)
+ */
 void Solution::getInitial() {
     nSolution = problem->nSolution;
     initialSolution();
 }
 
+/**
+ * Initial solution based on problem's potentials
+ */
+void Solution::initialSolution() {
+    // Choose first nSolution as initial solution
+    for (int i=0; i<nSolution; i++)
+        elements.push_back(problem->potentials[i].first);
+
+    // Calculate value
+    for (int i=0; i<nSolution; i++) {
+        for (int j=i+1;j<nSolution; j++) {
+            value += problem->getEdge(elements[i],elements[j]);
+        }
+    }
+
+    // Classify others as not chosen
+    for (int i=nSolution; i<problem->nNodes; i++)
+        notChosen.push_back(problem->potentials[i].first);
+}
+
+/**
+ *  Local search implementation
+ */
 void Solution::solLocalSearch() {
     const int ALLOWED_REPETITIONS = (int) ((problem->nNodes - nSolution) * 0.05);
-
-    double currentDistance = calcSolutionValue();
+    double currentDistance = value;
 
     // For each node from right to left
     for (int i=nSolution-1; i>=0; i--) {
-        int original = elements[i];
-        unordered_set<int>tested;
+        unordered_set<int> tested;
+        int originalNode = elements[i];
+        int bestNode = 0;
+        int index = 0;
         bool modified = false;
-        int newNode = 0, lastNode = 0;
 
         // Search best replacing node from notChosen ones
-        // with a limited number of
-        for (int j=0;j<ALLOWED_REPETITIONS && tested.size()<notChosen.size();) {
+        // with a limited number of repetitions
+        for (int j = 0; j < ALLOWED_REPETITIONS && tested.size() < notChosen.size();) {
 
-            // Choose an untested node from those not in solution
+            // Choose an untested index from notChosen
             do {
-                newNode = (int) (rand() % notChosen.size());
-            } while (tested.find(newNode)!=tested.end());
-            tested.insert(newNode);
+                index = (int) (rand() % notChosen.size());
+            } while (tested.find(index) != tested.end());
+            tested.insert(index);
 
             // Replace node
-            elements[i] = notChosen[newNode];
-            double newDistance = calcSolutionValue();
+            replaceIndexByIndex(i, index);
 
             // Check if its an improvement
+            double newDistance = value;
             if (currentDistance < newDistance) {
                 currentDistance = newDistance;
-                lastNode = newNode;
+                bestNode = elements[i];
                 modified = true;
-                j=0;
-            // Else, keep searching
+                j = 0;
+                // Else, keep searching
             } else {
                 j++;
             }
         }
-        // If modified, send best to solution and original to not chosen
-        if (modified) {
-            elements[i] = notChosen[lastNode];
-            notChosen[lastNode] = original;
-        }
-        // Else, put original back in its place
-        else elements[i] = original;
+        // If modified, put best node
+        if (modified) replaceIndexByValue(i, bestNode);
+
+        // Else, put original back
+        else replaceIndexByValue(i, originalNode);
     }
 }
 
-double Solution::calcSolutionValue() {
+/**
+ * Replace a solution node by index, using index from not chosen
+ */
+void Solution::replaceIndexByIndex(int solIndex, int ncIndex) {
+    int oldNode = elements[solIndex];
+    int newNode = notChosen[ncIndex];
+
+    // Swap nodes
+    elements[solIndex] = newNode;
+    notChosen[ncIndex] = oldNode;
+
+    // Recalculate solution
+    recalcValue(solIndex, oldNode, newNode);
+}
+
+/**
+ * Replace a solution node by index, using value from not chosen
+ */
+void Solution::replaceIndexByValue(int solIndex, int newNode) {
+    int oldNode = elements[solIndex];
+    int ncIndex;
+    for (ncIndex = 0; ncIndex<notChosen.size(); ncIndex++)
+        if (notChosen[ncIndex] == newNode) break;
+
+    // Swap nodes
+    elements[solIndex] = newNode;
+    notChosen[ncIndex] = oldNode;
+
+    // Recalculate solution
+    recalcValue(solIndex, oldNode, newNode);
+
+}
+
+/**
+ * Swaps two values in an index, updating solution value
+ */
+void Solution::recalcValue(int index, int oldNode, int newNode) {
+    // Recalculate for each diferent node the new edge
+    for (int i=0; i<nSolution; i++) {
+        if (i != index) {
+            value -= problem->getEdge(elements[i], oldNode);
+            value += problem->getEdge(elements[i], newNode);
+        }
+    }
+}
+
+/**
+ * Returns the objective function value of the problem
+ */
+double Solution::calcValueFromScratch() {
     double total = 0;
 
-    for (int i=0; i<nSolution; i++){
+    for (int i=0; i<nSolution; i++) {
         for (int j=i+1; j<nSolution; j++){
             total += problem->getEdge(elements[i],elements[j]);
         }
@@ -77,20 +159,18 @@ double Solution::calcSolutionValue() {
     return total;
 }
 
+/********** PROBLEM IMPLEMENTATION **********/
+
+/**
+ * Comparator for potential sorting
+ */
 bool potentialComp(pair<int,double> a, pair<int,double> b) {
     return a.second > b.second;
 }
 
-void Solution::initialSolution() {
-    // Choose first nSolution as initial solution
-    for (int i=0; i<nSolution; i++)
-        elements.push_back(problem->potentials[i].first);
-
-    // Classify others as not chosen
-    for (int i=nSolution; i<problem->nNodes; i++)
-        notChosen.push_back(problem->potentials[i].first);
-}
-
+/**
+ * Problem constructor
+ */
 Problem::Problem(string filename) : solution(this) {
     // Open input stream from filename
     // and fallback to standard input if string is empty
@@ -127,22 +207,37 @@ Problem::Problem(string filename) : solution(this) {
     sort(potentials.begin(),potentials.end(),potentialComp);
 }
 
+/**
+ * Obtain problem initial solution
+ */
 void Problem::getInitial() {
     solution.getInitial();
 }
 
-int Problem::matIndex(int i, int j) {
-    return nNodes * i + j;
+/**
+ * Improve solution using localSearch()
+ */
+void Problem::solLocalSearch() {
+    solution.solLocalSearch();
 }
 
-double Problem::getEdge(int i, int j) {
-    return matrix[matIndex(i,j)];
-}
-
+/**
+ * Metaheuristics solution
+ */
 void Problem::solve() {
     // TODO METAHEURISTICS
 }
 
-void Problem::solLocalSearch() {
-    solution.solLocalSearch();
+/**
+ * Get edge weigth from source and dest
+ */
+double Problem::getEdge(int i, int j) {
+    return matrix[matIndex(i,j)];
+}
+
+/**
+ * Get unidimensional index based on two dimensins
+ */
+int Problem::matIndex(int i, int j) {
+    return nNodes * i + j;
 }

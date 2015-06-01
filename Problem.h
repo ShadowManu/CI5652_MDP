@@ -1,6 +1,10 @@
-//
-// Created by shadowmanu on 28/05/15.
-//
+/**
+ * Problem and Solution class definitions
+ *
+ * Authors:
+ *      Manuel Pacheco | 10-10524
+ *      Cristian Medina | 10-10445
+ */
 
 #ifndef CI5652_MDP_PROBLEM_H
 #define CI5652_MDP_PROBLEM_H
@@ -18,16 +22,20 @@ class Problem;
 class Solution {
 public:
     int nSolution;
+    double value;
     vector<int> elements;
     vector<int> notChosen;
-
     Problem *problem;
-    Solution(Problem *p);
-    double calcSolutionValue();
-    void initialSolution();
-    void getInitial();
 
+    Solution(Problem *p);
+    void getInitial();
+    void initialSolution();
     void solLocalSearch();
+
+    void replaceIndexByIndex(int, int);
+    void replaceIndexByValue(int, int);
+    void recalcValue(int, int, int);
+    double calcValueFromScratch();
 };
 
 class Problem {
@@ -36,17 +44,17 @@ public:
     int nEdges;
     int nSolution;
 
+    Solution solution;
     vector<double> matrix;
     vector<pair<int,double>> potentials;
-    Solution solution;
-
-    int matIndex(int, int);
 
     Problem(string);
-    double getEdge(int, int);
-    void solve();
     void getInitial();
     void solLocalSearch();
+    void solve();
+
+    int matIndex(int, int);
+    double getEdge(int, int);
 };
 
 #endif //CI5652_MDP_PROBLEM_H
