@@ -23,6 +23,28 @@ using namespace std;
 Solution::Solution(Problem *p) : problem(p), nSolution(0), value(0) {}
 
 /**
+ * Solution Copy Constructor
+ */
+Solution::Solution(const Solution &s) :
+        problem(s.problem),
+        nSolution(s.nSolution),
+        value(s.value),
+        elements(s.elements),
+        notChosen(s.notChosen)
+        {}
+
+/*
+ * Assignment Operator
+ */
+Solution& Solution::operator= (const Solution &s) {
+    problem = s.problem;
+    nSolution = s.nSolution;
+    value = s.value;
+    elements = s.elements;
+    notChosen = s.notChosen;
+}
+
+/**
  * Finish solution startup (including initialSolution)
  */
 void Solution::getInitial() {
@@ -224,9 +246,70 @@ void Problem::solLocalSearch() {
 /**
  * Metaheuristics solution
  */
-void Problem::solve() {
-    // TODO METAHEURISTICS
+void Problem::solveByVNS() {
+    const int INIT_SIZE_PERTURBATION = 1; // TODO CHECK
+    const int MAX_ITERATIONS_VNS = 100; // TODO CHECK
+    const int MAX_TRIES_K = 5; // TODO CHECK
+    int k = INIT_SIZE_PERTURBATION;  // Size for shaking
+
+    solution.solLocalSearch();
+    Solution workingSolution(solution);
+
+    int triesWithK = 0;
+
+    for (int numIteration=0; (numIteration < MAX_ITERATIONS_VNS) && (k<nSolution); numIteration++) {
+
+        // Shake k nodes in working solution
+        for (int i=0; i<k; i++) {
+            unordered_set<int> solutionIndices;
+            unordered_set<int> notChosenIndices;
+            int solIndex;
+            int ncIndex;
+
+            // Choose a random index from solution
+            do {
+                solIndex = (rand() % nSolution);
+            } while (solutionIndices.find(solIndex) != solutionIndices.end());
+            solutionIndices.insert(solIndex);
+
+            // Choose a random index from not chosen
+            do {
+                ncIndex = (int) (rand() % workingSolution.notChosen.size());
+            } while (notChosenIndices.find(ncIndex) != notChosenIndices.end());
+            notChosenIndices.insert(ncIndex);
+
+            // Swap the values in the indices
+            workingSolution.replaceIndexByIndex(solIndex,ncIndex);
+        }
+
+        // Improve with Local Search;
+        workingSolution.solLocalSearch();
+
+        // If it is a better solution
+        if (solution.value < workingSolution.value) {
+            solution = workingSolution;
+            k = INIT_SIZE_PERTURBATION;
+            triesWithK = 0;
+        }
+        // Otherwise,
+        else {
+            // If exceeded tries
+            if (triesWithK >= MAX_TRIES_K) {
+                k++;
+                triesWithK = 0;
+            }
+            else {
+                triesWithK++;
+            }
+            workingSolution = solution;
+        }
+    }
 }
+
+/**
+ * Solve problem using taboo search
+ */
+
 
 /**
  * Get edge weigth from source and dest

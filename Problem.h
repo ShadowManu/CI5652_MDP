@@ -28,6 +28,8 @@ public:
     Problem *problem;
 
     Solution(Problem *p);
+    Solution(const Solution &);
+    Solution& operator= (const Solution &);
     void getInitial();
     void initialSolution();
     void solLocalSearch();
@@ -51,7 +53,8 @@ public:
     Problem(string);
     void getInitial();
     void solLocalSearch();
-    void solve();
+    void solveByVNS();
+    void solveByTabu();
 
     int matIndex(int, int);
     double getEdge(int, int);

@@ -24,12 +24,6 @@ int main(int argc, char *argv[]) {
     // Get initial solution
     prob.getInitial();
 
-    // TEST LOCAL SEARCH
-    for (int i=0; i<10000; i++)
-        prob.solLocalSearch();
-
-    // Solve problem
-    prob.solve();
 
     return 0;
 }
