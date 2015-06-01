@@ -1,9 +1,13 @@
-//
-// Created by shadowmanu on 28/05/15.
-//
-
+/**
+ * Main implementation of MDP solver
+ *
+ * Authors:
+ *      Manuel Pacheco | 10-10524
+ *      Cristian Medina | 10-10445
+ */
 #include <string>
 #include <istream>
+#include <iostream>
 
 #include "main.h"
 #include "Problem.h"
@@ -24,6 +28,10 @@ int main(int argc, char *argv[]) {
     // Get initial solution
     prob.getInitial();
 
+    // Solve by Tabu
+    prob.solveByVNS();
+
+    cout << prob.solution.value;
 
     return 0;
 }
