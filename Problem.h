@@ -37,7 +37,7 @@ public:
     int nSolution;
 
     vector<double> matrix;
-    vector<double>potentials;
+    vector<pair<int,double>> potentials;
     Solution solution;
 
     int matIndex(int, int);

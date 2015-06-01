@@ -19,7 +19,6 @@ void Solution::getInitial() {
 }
 
 void Solution::solLocalSearch() {
-    // TODO COPY LOCAL SEARCH
     const int ALLOWED_REPETITIONS = (int) ((problem->nNodes - nSolution) * 0.05);
 
     double currentDistance = calcSolutionValue();
@@ -29,7 +28,7 @@ void Solution::solLocalSearch() {
         int original = elements[i];
         unordered_set<int>tested;
         bool modified = false;
-        int newNode, lastNode;
+        int newNode = 0, lastNode = 0;
 
         // Search best replacing node from notChosen ones
         // with a limited number of
@@ -83,24 +82,13 @@ bool potentialComp(pair<int,double> a, pair<int,double> b) {
 }
 
 void Solution::initialSolution() {
-    // Get nodes with potentials as pairs
-    vector<pair<int,double>> ord_potentials;
-    for (int i=0; i<problem->nNodes; i++) {
-        ord_potentials.push_back(pair<int,double>(i,problem->potentials[i]));
-    }
-
-    // Sort them by potentials
-    sort(ord_potentials.begin(),ord_potentials.end(),potentialComp);
-
     // Choose first nSolution as initial solution
-    for (int i=0; i<nSolution; i++) {
-        elements.push_back(ord_potentials[i].first);
-    }
+    for (int i=0; i<nSolution; i++)
+        elements.push_back(problem->potentials[i].first);
 
     // Classify others as not chosen
-    for (int i=nSolution; i<problem->nNodes; i++) {
-        notChosen.push_back(ord_potentials[i].first);
-    }
+    for (int i=nSolution; i<problem->nNodes; i++)
+        notChosen.push_back(problem->potentials[i].first);
 }
 
 Problem::Problem(string filename) : solution(this) {
@@ -117,21 +105,26 @@ Problem::Problem(string filename) : solution(this) {
     *in >> nNodes >> nSolution;
     nEdges = (nNodes*(nNodes - 1)) / 2;
 
-    // Set sizes for matrix, potentials and initialize solution
+    // Set size for matrix and temporal potentials;
     matrix.resize((unsigned long) (nNodes * nNodes));
-    potentials.resize((unsigned long) nNodes);
+    vector<int> temp_potentials((unsigned long) nNodes);
 
     // Read edges
     {
         int i, from, to; double length;
         for (i = 0; i < nEdges; i++) {
             *in >> from >> to >> length;
-            potentials[from] += length;
-            potentials[to] += length;
+            temp_potentials[from] += length;
+            temp_potentials[to] += length;
             matrix[matIndex(from, to)] = length;
             matrix[matIndex(to, from)] = length;
         }
     }
+
+    // Fill and sort potentials
+    for (int i=0; i<nNodes; i++)
+        potentials.push_back(pair<int,double>(i,temp_potentials[i]));
+    sort(potentials.begin(),potentials.end(),potentialComp);
 }
 
 void Problem::getInitial() {
