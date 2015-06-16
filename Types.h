@@ -6,8 +6,8 @@
  *      Cristian Medina | 10-10445
  */
 
-#ifndef CI5652_MDP_PROBLEM_H
-#define CI5652_MDP_PROBLEM_H
+#ifndef CI5652_MDP_TYPES_H
+#define CI5652_MDP_TYPES_H
 
 #include <string>
 #include <utility>
@@ -60,4 +60,4 @@ public:
     double getEdge(int, int);
 };
 
-#endif //CI5652_MDP_PROBLEM_H
+#endif // CI5652_MDP_TYPES_H
