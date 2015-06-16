@@ -1,5 +1,5 @@
 /**
- * Problem and Solution implementation
+ * Problem implementation
  *
  * Authors:
  *      Manuel Pacheco | 10-10524
@@ -8,9 +8,10 @@
 
 #include <iostream>
 #include <fstream>
+#include <memory>
+
 #include <algorithm>
 #include <unordered_set>
-#include <queue>
 
 #include "Types.h"
 

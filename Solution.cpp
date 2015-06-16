@@ -1,15 +1,13 @@
 /**
- * Problem and Solution implementation
+ * Solution implementation
  *
  * Authors:
  *      Manuel Pacheco | 10-10524
  *      Cristian Medina | 10-10445
  */
 
-#include <iostream>
 #include <algorithm>
 #include <unordered_set>
-#include <queue>
 
 #include "Types.h"
 

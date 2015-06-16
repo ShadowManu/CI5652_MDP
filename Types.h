@@ -10,10 +10,7 @@
 #define CI5652_MDP_TYPES_H
 
 #include <string>
-#include <utility>
-#include <memory>
 #include <vector>
-#include <unordered_set>
 
 using namespace std;
 
@@ -29,7 +26,7 @@ public:
 
     Solution(Problem *p);
     Solution(const Solution &);
-    Solution& operator= (const Solution &);
+    Solution& operator=(const Solution &);
     void getInitial();
     void initialSolution();
     void solLocalSearch();
