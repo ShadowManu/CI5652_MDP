@@ -17,13 +17,6 @@
 using namespace std;
 
 /**
- * Comparator for potential sorting
- */
-bool potentialComp(pair<int,double> a, pair<int,double> b) {
-    return a.second > b.second;
-}
-
-/**
  * Problem constructor
  */
 Problem::Problem(string filename) : solution(this) {
@@ -59,7 +52,8 @@ Problem::Problem(string filename) : solution(this) {
     // Fill and sort potentials
     for (int i=0; i<nNodes; i++)
         potentials.push_back(pair<int,double>(i,temp_potentials[i]));
-    sort(potentials.begin(),potentials.end(),potentialComp);
+    sort(potentials.begin(),potentials.end(),
+         [](pair<int,double> a, pair<int,double> b){ return a.second > b.second; });
 }
 
 
