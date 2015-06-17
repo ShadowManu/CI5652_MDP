@@ -31,8 +31,7 @@ Solution::Solution(const Solution &s) :
         nSolution(s.nSolution),
         value(s.value),
         elements(s.elements),
-        notChosen(s.notChosen)
-        {}
+        notChosen(s.notChosen) { }
 
 /*
  * Assignment Operator

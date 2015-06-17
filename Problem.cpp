@@ -18,45 +18,76 @@
 using namespace std;
 
 /**
- * Problem constructor
+ * Default Constructor
  */
-Problem::Problem(string filename) : solution(this) {
-    // Open input stream from filename
-    // and fallback to standard input if string is empty
-    shared_ptr<istream> in;
-    if (filename.empty()) {
-        in.reset(&cin,[](...){});
-    } else {
-        in.reset(new ifstream(filename));
+Problem::Problem() : solution(this) {}
+
+/**
+ * Copy Constructor using Problem
+ */
+Problem::Problem(const Problem &p) :
+        solution(p.solution),
+        nNodes(p.nNodes),
+        nEdges(p.nEdges),
+        nSolution(p.nSolution),
+        matrix(p.matrix),
+        potentials(p.potentials) { }
+
+/*
+* Assignment Operator
+*/
+Problem& Problem::operator=(const Problem &p) {
+    solution = p.solution;
+    nNodes = p.nNodes;
+    nEdges = p.nEdges;
+    nSolution = p.nSolution;
+    matrix = p.matrix;
+    potentials = p.potentials;
+    return *this;
+}
+
+/**
+ * Returns a Problem using a filename
+ */
+Problem Problem::fromFile(string filename) {
+    Problem prob;
+
+    // Open input stream from filename (throw error if not found)
+    ifstream in(filename);
+    if (!in) {
+        cout << "File " << filename << " not found!" << endl;
+        exit(EXIT_FAILURE);
     }
 
     // Read nNodes and solutionSize
-    *in >> nNodes >> nSolution;
-    nEdges = (nNodes*(nNodes - 1)) / 2;
+    in >> prob.nNodes >> prob.nSolution;
+    prob.nEdges = (prob.nNodes*(prob.nNodes - 1)) / 2;
 
     // Set size for matrix and temporal potentials;
-    matrix.resize((unsigned long) (nNodes * nNodes));
-    vector<int> temp_potentials((unsigned long) nNodes);
+    prob.matrix.resize((unsigned long) (prob.nNodes * prob.nNodes));
+    vector<int> temp_potentials((unsigned long) prob.nNodes);
 
     // Read edges
     {
-        int i, from, to; double length;
-        for (i = 0; i < nEdges; i++) {
-            *in >> from >> to >> length;
+        for (int i=0; i < prob.nEdges; i++) {
+            int from, to; double length;
+            in >> from >> to >> length;
             temp_potentials[from] += length;
             temp_potentials[to] += length;
-            matrix[matIndex(from, to)] = length;
-            matrix[matIndex(to, from)] = length;
+            prob.matrix[prob.matIndex(from, to)] = length;
+            prob.matrix[prob.matIndex(to, from)] = length;
         }
     }
 
     // Fill and sort potentials
-    for (int i=0; i<nNodes; i++)
-        potentials.push_back(pair<int,double>(i,temp_potentials[i]));
-    sort(potentials.begin(),potentials.end(),
+    for (int i=0; i<prob.nNodes; i++)
+        prob.potentials.push_back(pair<int,double>(i,temp_potentials[i]));
+    sort(prob.potentials.begin(),
+         prob.potentials.end(),
          [](pair<int,double> a, pair<int,double> b){ return a.second > b.second; });
-}
 
+    return prob;
+}
 
 /**
  * Obtain problem initial solution

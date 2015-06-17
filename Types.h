@@ -28,6 +28,7 @@ public:
     Solution(Problem *p);
     Solution(const Solution &);
     Solution& operator=(const Solution &);
+
     void getInitial();
     void initialSolution();
     void solLocalSearch();
@@ -48,7 +49,11 @@ public:
     vector<double> matrix;
     vector<pair<int,double>> potentials;
 
-    Problem(string);
+    Problem();
+    Problem(const Problem &);
+    Problem &operator=(const Problem &p);
+    static Problem fromFile(string);
+
     void getInitial();
     void solLocalSearch();
     void solveByVNS();
