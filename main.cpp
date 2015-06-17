@@ -9,6 +9,8 @@
 #include <istream>
 #include <iostream>
 
+#include <string>
+
 #include <ctime>
 #include <cstring>
 
@@ -21,9 +23,12 @@ int main(int argc, char *argv[]) {
     // Arg 1: problem filename
     // Arg 2: greedy or random
     // Arg 3: metaheuristic name
+    // Arg 4: Random seed
 
+    unsigned int test;
     // Startup random seed
-    srand((unsigned int) time(NULL));
+    srand((unsigned int) stoi(argv[4]));
+    cout << test << " ";
 
     // Read problem data
     Problem problem(Problem::fromFile(argv[1]));
