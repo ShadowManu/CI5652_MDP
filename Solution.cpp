@@ -10,6 +10,7 @@
 #include <unordered_set>
 
 #include "Types.h"
+#include "Helpers.tcc"
 
 using namespace std;
 
@@ -194,3 +195,4 @@ void Solution::recalcValue(int index, int oldNode, int newNode) {
         }
     }
 }
+

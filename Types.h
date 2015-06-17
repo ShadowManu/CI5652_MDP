@@ -65,18 +65,4 @@ public:
     double getEdge(int, int);
 };
 
-/**
- * Helper function to pop random elements of a vector
- */
-template <typename T>
-T pop_random(std::vector<T>&v)
-{
-    // Get the random index
-    unsigned long random = rand() % v.size();
-    T ans = v[random];
-    swap(v[random], v.back());
-    v.pop_back();
-    return ans;
-}
-
 #endif // CI5652_MDP_TYPES_H
