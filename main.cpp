@@ -8,143 +8,56 @@
 #include <string>
 #include <istream>
 #include <iostream>
+
 #include <ctime>
-#include <algorithm>
+#include <cstring>
 
 #include "main.h"
-#include "Problem.h"
 
 using namespace std;
 
-double avg ( vector<double>& v )
-{
-    double return_value = 0.0;
-    int n = v.size();
-
-    for ( int i=0; i < n; i++)
-    {
-        return_value += v[i];
-    }
-
-    return ( return_value / n);
-}
-
 int main(int argc, char *argv[]) {
+    // Arg 0: program name
+    // Arg 1: problem filename
+    // Arg 2: greedy or random
+    // Arg 3: metaheuristic name
+
     // Startup random seed
     srand((unsigned int) time(NULL));
 
-    vector<double> values;
-    vector<double> times;
+    // Read problem data
+    Problem problem(Problem::fromFile(argv[1]));
 
-    cout << "VNS:" << endl;
-    // 15 times
-    for (int i = 0; i<15; i++) {
-        clock_t begin = clock();
+    // Start timer
+    clock_t begin = clock();
 
-        // Assign file argument if provided
-        string inName;
-        if (argc >= 2) inName = argv[1];
+    // Choose initial solution strategy
+    if (strcmp(argv[2],"greedy") == 0)
+        problem.initGreedy();
+    if (strcmp(argv[2],"random") == 0)
+        problem.initRandom();
 
-        // Create problem
-        Problem prob(inName);
+    // Save initial solution
+    double initialSolution = problem.solution.value;
 
-        // Get initial solution
-        prob.getInitial();
-        if (i == 1) cout << prob.solution.value << "\t\t" << endl;
-        // Solve by Tabu
-        prob.solveByVNS();
+    // Choose metaheuristic strategy
+    if (strcmp(argv[3],"localsearch") == 0)
+        problem.solveByLocalSearch();
+    if (strcmp(argv[3],"vns") == 0)
+        problem.solveByVNS();
+    if (strcmp(argv[3],"tabu") == 0)
+        problem.solveByTabu();
 
-        clock_t end = clock();
-        double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+    // Save final solution
+    double finalSolution = problem.solution.value;
 
-        cout << prob.solution.value << "\t\t" << elapsed_secs << endl;
-        values.push_back(prob.solution.value);
-        times.push_back(elapsed_secs);
-    }
+    // End timer
+    clock_t end = clock();
+    // Calculate number of seconds
+    double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
 
-    cout << "VALUES | MIN: " << *min_element(values.begin(), values.end())
-            << " MAX: " << *max_element(values.begin(), values.end())
-            << " AVERAGE: " << avg(values) << endl;
-
-    cout << "TIMES | MIN: " << *min_element(times.begin(), times.end())
-           << " MAX: " << *max_element(times.begin(), times.end())
-           << " AVERAGE: " << avg(times) << endl;
-
-    values.clear();
-    times.clear();
-
-    cout << "TABOO SEARCH:" << endl;
-    // 15 times
-    for (int i = 0; i<15; i++) {
-        clock_t begin = clock();
-
-        // Assign file argument if provided
-        string inName;
-        if (argc >= 2) inName = argv[1];
-
-        // Create problem
-        Problem prob(inName);
-
-        // Get initial solution
-        prob.getInitial();
-        // Solve by Tabu
-        prob.solveByTabu();
-
-        clock_t end = clock();
-        double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-
-        cout << prob.solution.value << "\t\t" << elapsed_secs << endl;
-        values.push_back(prob.solution.value);
-        times.push_back(elapsed_secs);
-    }
-
-    cout << "VALUES | MIN: " << *min_element(values.begin(), values.end())
-           << " MAX: " << *max_element(values.begin(), values.end())
-           << " AVERAGE: " << avg(values) << endl;
-
-    cout << "TIMES | MIN: " << *min_element(times.begin(), times.end())
-           << " MAX: " << *max_element(times.begin(), times.end())
-           << " AVERAGE: " << avg(times) << endl;
-
-    values.clear();
-    times.clear();
-
-    cout << "LOCAL SEARCH:" << endl;
-    // 15 times
-    for (int i = 0; i<15; i++) {
-        clock_t begin = clock();
-
-        // Assign file argument if provided
-        string inName;
-        if (argc >= 2) inName = argv[1];
-
-        // Create problem
-        Problem prob(inName);
-
-        // Get initial solution
-        prob.getInitial();
-
-        // Local search once
-        prob.solLocalSearch();
-
-        clock_t end = clock();
-        double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-
-        cout << prob.solution.value << "\t\t" << elapsed_secs << endl;
-        values.push_back(prob.solution.value);
-        times.push_back(elapsed_secs);
-    }
-
-    cout << "VALUES | MIN: " << *min_element(values.begin(), values.end())
-           << " MAX: " << *max_element(values.begin(), values.end())
-           << " AVERAGE: " << avg(values) << endl;
-
-    cout << "TIMES | MIN: " << *min_element(times.begin(), times.end())
-           << " MAX: " << *max_element(times.begin(), times.end())
-           << " AVERAGE: " << avg(times) << endl;
-
-    values.clear();
-    times.clear();
+    // Print results (initial, final, timing)
+    cout << initialSolution << " " << finalSolution << " " << elapsed_secs << endl;
 
     return 0;
 }

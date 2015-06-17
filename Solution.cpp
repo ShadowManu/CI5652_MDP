@@ -102,7 +102,7 @@ void Solution::initRandom() {
  *  Local search implementation
  */
 void Solution::doLocalSearch() {
-    const long NH_SIZE = (long) (notChosen.size() * (1.0/8));
+    const long NH_SIZE = (long) (notChosen.size() * (1.0/5));
     const long MAX_REPEATS = 30;
 
     // Original data from solution
