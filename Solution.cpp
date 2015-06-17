@@ -194,18 +194,3 @@ void Solution::recalcValue(int index, int oldNode, int newNode) {
         }
     }
 }
-
-/**
- * Returns the objective function value of the problem
- */
-double Solution::calcValueFromScratch() {
-    double total = 0;
-
-    for (int i=0; i<nSolution; i++) {
-        for (int j=i+1; j<nSolution; j++){
-            total += problem->getEdge(elements[i],elements[j]);
-        }
-    }
-
-    return total;
-}

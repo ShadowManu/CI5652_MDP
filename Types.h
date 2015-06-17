@@ -37,7 +37,6 @@ public:
     void replaceIndexByIndex(int, int);
     void replaceIndexByValue(int, int);
     void recalcValue(int, int, int);
-    double calcValueFromScratch();
 };
 
 class Problem {
