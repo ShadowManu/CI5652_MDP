@@ -108,7 +108,7 @@ void Problem::initRandom() {
 /**
  * Solve a problem using a single local search
  */
-void Problem::solLocalSearch() {
+void Problem::solveByLocalSearch() {
     solution.doLocalSearch();
 }
 
@@ -290,13 +290,13 @@ void Problem::solveByTabu() {
 /**
  * Get edge weigth from source and dest
  */
-double Problem::getEdge(int i, int j) {
+double Problem::getEdge(long i, long j) {
     return matrix[matIndex(i,j)];
 }
 
 /**
  * Get unidimensional index based on two dimensins
  */
-int Problem::matIndex(int i, int j) {
+long Problem::matIndex(long i, long j) {
     return nNodes * i + j;
 }

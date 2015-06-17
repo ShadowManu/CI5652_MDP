@@ -18,10 +18,10 @@ class Problem;
 
 class Solution {
 public:
-    int nSolution;
+    long nSolution;
     double value;
-    vector<int> elements;
-    vector<int> notChosen;
+    vector<long> elements;
+    vector<long> notChosen;
     Problem *problem;
 
     Solution();
@@ -34,20 +34,20 @@ public:
 
     void doLocalSearch();
 
-    void replaceIndexByIndex(int, int);
-    void replaceIndexByValue(int, int);
-    void recalcValue(int, int, int);
+    void replaceIndexByIndex(long, long);
+    void replaceIndexByValue(long, long);
+    void recalcValue(long, long, long);
 };
 
 class Problem {
 public:
-    int nNodes;
-    int nEdges;
-    int nSolution;
+    long nNodes;
+    long nEdges;
+    long nSolution;
 
     Solution solution;
     vector<double> matrix;
-    vector<pair<int,double>> potentials;
+    vector<pair<long,double>> potentials;
 
     Problem();
     Problem(const Problem &);
@@ -57,12 +57,12 @@ public:
     void initGreedy();
     void initRandom();
 
-    void solLocalSearch();
+    void solveByLocalSearch();
     void solveByVNS();
     void solveByTabu();
 
-    int matIndex(int, int);
-    double getEdge(int, int);
+    long matIndex(long, long);
+    double getEdge(long, long);
 };
 
 #endif // CI5652_MDP_TYPES_H

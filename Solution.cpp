@@ -7,7 +7,6 @@
  */
 
 #include <algorithm>
-#include <unordered_set>
 
 #include "Types.h"
 #include "Helpers.tcc"
@@ -56,18 +55,18 @@ void Solution::initGreedy() {
     nSolution = problem->nSolution;
 
     // Choose first nSolution as initial solution
-    for (int i=0; i<nSolution; i++)
+    for (auto i=0; i<nSolution; i++)
         elements.push_back(problem->potentials[i].first);
 
     // Calculate initial value
-    for (int i=0; i<nSolution; i++) {
-        for (int j=i+1; j<nSolution; j++) {
+    for (auto i=0; i<nSolution; i++) {
+        for (auto j=i+1; j<nSolution; j++) {
             value += problem->getEdge(elements[i],elements[j]);
         }
     }
 
     // Classify others as not chosen
-    for (int i=nSolution; i<problem->nNodes; i++)
+    for (auto i=nSolution; i<problem->nNodes; i++)
         notChosen.push_back(problem->potentials[i].first);
 }
 
@@ -81,14 +80,11 @@ void Solution::initRandom() {
     nSolution = problem->nSolution;
 
     // Create a set with all elements
-    vector<int> indices((unsigned long) nSolution);
-    for (int i=0; i<problem->nNodes; i++)
-        indices.push_back(i);
+    vector<long> indices = vectorRange(problem->nNodes);
 
     // Choose the random elements
-    for (int i=0; i<nSolution; i++) {
+    for (auto i=0; i<nSolution; i++)
         elements.push_back(pop_random(indices));
-    }
 
     // Calculate initial value
     for (int i=0; i<nSolution; i++) {
@@ -98,7 +94,7 @@ void Solution::initRandom() {
     }
 
     // Classify others as not chosen
-    for (int i=nSolution; i<problem->nNodes; i++)
+    for (long i=nSolution; i<problem->nNodes; i++)
         notChosen.push_back(pop_random(indices));
 }
 
@@ -106,42 +102,42 @@ void Solution::initRandom() {
  *  Local search implementation
  */
 void Solution::doLocalSearch() {
-    const int ALLOWED_REPETITIONS = (int) ((problem->nNodes - nSolution) * 0.05);
-    double currentDistance = value;
+    const long NH_SIZE = (long) (notChosen.size() * (1.0/8));
+    const long MAX_REPEATS = 30;
+
+    // Original data from solution
+    double bestDistance = value;
 
     // For each node from right to left
-    for (int i=nSolution-1; i>=0; i--) {
-        unordered_set<int> tested;
-        int originalNode = elements[i];
-        int bestNode = 0;
-        int index = 0;
+    for (auto i=nSolution-1; i>=0; i--) {
+
+        // Original data from solution node
+        long originalNode = elements[i], bestNode = elements[i];
         bool modified = false;
 
-        // Search best replacing node from notChosen ones
-        // with a limited number of repetitions
-        for (int j = 0; j < ALLOWED_REPETITIONS && tested.size() < notChosen.size();) {
+        // Choose neighborhood nodes
+        vector<long> neighbors = chooseNRandomFromVector(notChosen, NH_SIZE);
 
-            // Choose an untested index from notChosen
-            do {
-                index = (int) (rand() % notChosen.size());
-            } while (tested.find(index) != tested.end());
-            tested.insert(index);
+        // Search best replacing node from the neighborhood
+        // with a limit number of repetitions without change
+        for (auto j=0, repeats=1; j<NH_SIZE && repeats<=MAX_REPEATS; j++, repeats++) {
 
+            // Choose a node
+            long iNode = pop_random(neighbors);
             // Replace node
-            replaceIndexByIndex(i, index);
+            replaceIndexByIndex(i,iNode);
 
-            // Check if its an improvement
+            // If its an improvement, remember it as best option
+            // resetting the repetitions
             double newDistance = value;
-            if (currentDistance < newDistance) {
-                currentDistance = newDistance;
+            if (bestDistance < newDistance) {
+                bestDistance = newDistance;
                 bestNode = elements[i];
                 modified = true;
-                j = 0;
-                // Else, keep searching
-            } else {
-                j++;
+                repeats = 0;
             }
         }
+
         // If modified, put best node
         if (modified) replaceIndexByValue(i, bestNode);
 
@@ -153,9 +149,9 @@ void Solution::doLocalSearch() {
 /**
  * Replace a solution node by index, using index from not chosen
  */
-void Solution::replaceIndexByIndex(int solIndex, int ncIndex) {
-    int oldNode = elements[solIndex];
-    int newNode = notChosen[ncIndex];
+void Solution::replaceIndexByIndex(long solIndex, long ncIndex) {
+    long oldNode = elements[solIndex];
+    long newNode = notChosen[ncIndex];
 
     // Swap nodes
     elements[solIndex] = newNode;
@@ -168,9 +164,9 @@ void Solution::replaceIndexByIndex(int solIndex, int ncIndex) {
 /**
  * Replace a solution node by index, using value from not chosen
  */
-void Solution::replaceIndexByValue(int solIndex, int newNode) {
-    int oldNode = elements[solIndex];
-    int ncIndex;
+void Solution::replaceIndexByValue(long solIndex, long newNode) {
+    long oldNode = elements[solIndex];
+    long ncIndex;
     for (ncIndex = 0; ncIndex<notChosen.size(); ncIndex++)
         if (notChosen[ncIndex] == newNode) break;
 
@@ -186,7 +182,7 @@ void Solution::replaceIndexByValue(int solIndex, int newNode) {
 /**
  * Swaps two values in an index, updating solution value
  */
-void Solution::recalcValue(int index, int oldNode, int newNode) {
+void Solution::recalcValue(long index, long oldNode, long newNode) {
     // Recalculate for each diferent node the new edge
     for (int i=0; i<nSolution; i++) {
         if (i != index) {
