@@ -24,6 +24,7 @@ public:
     vector<int> notChosen;
     Problem *problem;
 
+    Solution();
     Solution(Problem *p);
     Solution(const Solution &);
     Solution& operator=(const Solution &);

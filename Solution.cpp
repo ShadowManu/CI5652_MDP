@@ -14,12 +14,17 @@
 using namespace std;
 
 /**
- * Solution Constructor
+ * Default Constructor
+ */
+Solution::Solution() : problem(nullptr), nSolution(0), value(0) {}
+
+/**
+ * Copy Constructor using Problem
  */
 Solution::Solution(Problem *p) : problem(p), nSolution(0), value(0) {}
 
 /**
- * Solution Copy Constructor
+ * Copy Constructor using Solution
  */
 Solution::Solution(const Solution &s) :
         problem(s.problem),
@@ -32,12 +37,13 @@ Solution::Solution(const Solution &s) :
 /*
  * Assignment Operator
  */
-Solution& Solution::operator= (const Solution &s) {
+Solution& Solution::operator=(const Solution &s) {
     problem = s.problem;
     nSolution = s.nSolution;
     value = s.value;
     elements = s.elements;
     notChosen = s.notChosen;
+    return *this;
 }
 
 /**
