@@ -46,24 +46,21 @@ Solution& Solution::operator=(const Solution &s) {
 }
 
 /**
- * Finish solution startup (including initialSolution)
+ * Obtain problem initial solution
+ * using a greedy strategy:
+ * Choose nodes with better potentials
  */
-void Solution::getInitial() {
+void Solution::initGreedy() {
+    // Problem setup
     nSolution = problem->nSolution;
-    initialSolution();
-}
 
-/**
- * Initial solution based on problem's potentials
- */
-void Solution::initialSolution() {
     // Choose first nSolution as initial solution
     for (int i=0; i<nSolution; i++)
         elements.push_back(problem->potentials[i].first);
 
-    // Calculate value
+    // Calculate initial value
     for (int i=0; i<nSolution; i++) {
-        for (int j=i+1;j<nSolution; j++) {
+        for (int j=i+1; j<nSolution; j++) {
             value += problem->getEdge(elements[i],elements[j]);
         }
     }
@@ -74,9 +71,40 @@ void Solution::initialSolution() {
 }
 
 /**
+ * Obtain problem initial solution
+ * using a random strategy:
+ *
+ */
+void Solution::initRandom() {
+    // Problem setup
+    nSolution = problem->nSolution;
+
+    // Create a set with all elements
+    vector<int> indices((unsigned long) nSolution);
+    for (int i=0; i<problem->nNodes; i++)
+        indices.push_back(i);
+
+    // Choose the random elements
+    for (int i=0; i<nSolution; i++) {
+        elements.push_back(pop_random(indices));
+    }
+
+    // Calculate initial value
+    for (int i=0; i<nSolution; i++) {
+        for (int j=i+1; j<nSolution; j++) {
+            value += problem->getEdge(elements[i],elements[j]);
+        }
+    }
+
+    // Classify others as not chosen
+    for (int i=nSolution; i<problem->nNodes; i++)
+        notChosen.push_back(pop_random(indices));
+}
+
+/**
  *  Local search implementation
  */
-void Solution::solLocalSearch() {
+void Solution::doLocalSearch() {
     const int ALLOWED_REPETITIONS = (int) ((problem->nNodes - nSolution) * 0.05);
     double currentDistance = value;
 

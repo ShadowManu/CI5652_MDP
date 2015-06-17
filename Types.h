@@ -29,9 +29,10 @@ public:
     Solution(const Solution &);
     Solution& operator=(const Solution &);
 
-    void getInitial();
-    void initialSolution();
-    void solLocalSearch();
+    void initGreedy();
+    void initRandom();
+
+    void doLocalSearch();
 
     void replaceIndexByIndex(int, int);
     void replaceIndexByValue(int, int);
@@ -54,7 +55,9 @@ public:
     Problem &operator=(const Problem &p);
     static Problem fromFile(string);
 
-    void getInitial();
+    void initGreedy();
+    void initRandom();
+
     void solLocalSearch();
     void solveByVNS();
     void solveByTabu();
@@ -62,5 +65,19 @@ public:
     int matIndex(int, int);
     double getEdge(int, int);
 };
+
+/**
+ * Helper function to pop random elements of a vector
+ */
+template <typename T>
+T pop_random(std::vector<T>&v)
+{
+    // Get the random index
+    unsigned long random = rand() % v.size();
+    T ans = v[random];
+    swap(v[random], v.back());
+    v.pop_back();
+    return ans;
+}
 
 #endif // CI5652_MDP_TYPES_H

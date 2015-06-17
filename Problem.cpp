@@ -91,20 +91,30 @@ Problem Problem::fromFile(string filename) {
 
 /**
  * Obtain problem initial solution
+ * using the greedy strategy
  */
-void Problem::getInitial() {
-    solution.getInitial();
+void Problem::initGreedy() {
+    solution.initGreedy();
 }
 
 /**
- * Improve solution using localSearch()
+ * Obtain problem initial solution
+ * using a random strategy
+ */
+void Problem::initRandom() {
+    solution.initRandom();
+}
+
+/**
+ * Solve a problem using a single local search
  */
 void Problem::solLocalSearch() {
-    solution.solLocalSearch();
+    solution.doLocalSearch();
 }
 
 /**
- * Metaheuristics solution
+ * Solve a problem using the Basic VNS by Brimberg.
+ * metaheuristic
  */
 void Problem::solveByVNS() {
     const int INIT_SIZE_PERTURBATION = (int) (nSolution * 0.1); // TODO CHECK
@@ -112,7 +122,7 @@ void Problem::solveByVNS() {
     const int MAX_TRIES_K = 10; // TODO CHECK
     int k = INIT_SIZE_PERTURBATION;  // Size for shaking
 
-    solution.solLocalSearch();
+    solution.doLocalSearch();
     Solution workingSolution(solution);
 
     int triesWithK = 0;
@@ -143,7 +153,7 @@ void Problem::solveByVNS() {
         }
 
         // Improve with Local Search;
-        workingSolution.solLocalSearch();
+        workingSolution.doLocalSearch();
 
         // If it is a better solution
         if (solution.value < workingSolution.value) {
@@ -176,7 +186,7 @@ void Problem::solveByTabu() {
     const int MAX_TRIES = 1000; // TODO CHECK
     const int JAIL_TIME = 30;
 
-    solution.solLocalSearch();
+    solution.doLocalSearch();
     Solution workingSolution(solution);
 
     unordered_set<int> tabuIndices;
@@ -245,7 +255,7 @@ void Problem::solveByTabu() {
         // If it is a better solution
         if (solution.value < workingSolution.value) {
             solution = workingSolution;
-            solution.solLocalSearch();
+            solution.doLocalSearch();
             tabuIndices.clear();
             fill(tabuTimers.begin(),tabuTimers.end(),0);
             noChange = 0;
