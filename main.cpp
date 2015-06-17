@@ -58,6 +58,7 @@ int main(int argc, char *argv[]) {
     double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
 
     // Print results (initial, final, timing)
+    cout.precision(15);
     cout << initialSolution << " " << finalSolution << " " << elapsed_secs << endl;
 
     return 0;

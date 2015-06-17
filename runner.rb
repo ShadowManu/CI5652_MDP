@@ -38,8 +38,8 @@ filelist.each do |filename|
   avgSol = results[:final].inject(:+) / results[:final].length
   minTime = results[:time].min
   maxTime = results[:time].max
-  avgTime = results[:final].inject(:+) / results[:time].length
+  avgTime = results[:time].inject(:+) / results[:time].length
 
   goal = [filename[/(.*\/)(.*)/,2], minSol, maxSol, avgSol, minTime, maxTime, avgTime]
-  puts (sprintf("%-35s %-20.2f %-20.2f %-20.2f %-20.2f %-20.2f %-20.2f",goal[0],goal[1],goal[2],goal[3],goal[4],goal[5],goal[6]))
+  puts (sprintf("%-35s %-20.4f %-20.4f %-20.4f %-20.4f %-20.4f %-20.4f",goal[0],goal[1],goal[2],goal[3],goal[4],goal[5],goal[6]))
 end
