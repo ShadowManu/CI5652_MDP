@@ -45,15 +45,6 @@ vector<long> chooseNRandomFromVector(const vector<T> &v, long n) {
     return out;
 }
 
-/**
- * Returns a vector containing longs from 0 to n-1
- */
-vector<long> vectorRange(long n) {
-    vector<long> out;
-    for (auto i=0; i<n; i++) {
-        out.push_back(i);
-    }
-    return out;
-}
+vector<long> vectorRange(long);
 
 #endif //CI5652_MDP_HELPERS_TCC

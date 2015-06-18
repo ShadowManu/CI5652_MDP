@@ -25,7 +25,7 @@ public:
     Problem *problem;
 
     Solution();
-    Solution(Problem *p);
+    Solution(Problem *);
     Solution(const Solution &);
     Solution& operator=(const Solution &);
 
@@ -37,6 +37,23 @@ public:
     void replaceIndexByIndex(long, long);
     void replaceIndexByValue(long, long);
     void recalcValue(long, long, long);
+};
+
+class GeneticSolution {
+public:
+    long nSolution;
+    double value;
+    vector<bool> bitmap;
+    Problem *problem;
+
+    GeneticSolution();
+    GeneticSolution(Problem *);
+    GeneticSolution(const GeneticSolution &);
+    GeneticSolution& operator=(const GeneticSolution &);
+
+    void doInversion();
+
+    void toggle(long);
 };
 
 class Problem {
@@ -60,6 +77,7 @@ public:
     void solveByLocalSearch();
     void solveByVNS();
     void solveByTabu();
+    void solveByGA();
 
     long matIndex(long, long);
     double getEdge(long, long);

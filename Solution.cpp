@@ -9,7 +9,7 @@
 #include <algorithm>
 
 #include "Types.h"
-#include "Helpers.tcc"
+#include "Helpers.h"
 
 using namespace std;
 
@@ -191,4 +191,3 @@ void Solution::recalcValue(long index, long oldNode, long newNode) {
         }
     }
 }
-
