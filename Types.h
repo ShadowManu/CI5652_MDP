@@ -51,9 +51,9 @@ public:
     GeneticSolution(const GeneticSolution &);
     GeneticSolution& operator=(const GeneticSolution &);
 
-    void doInversion();
-
     void toggle(long);
+    static vector<long> rouletteSelection(const vector<GeneticSolution> &, long);
+    static void geneticCrossover(GeneticSolution &, GeneticSolution &);
 };
 
 class Problem {

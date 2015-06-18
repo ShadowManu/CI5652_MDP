@@ -62,24 +62,108 @@ GeneticSolution& GeneticSolution::operator=(const GeneticSolution &gs) {
     value = gs.value;
     bitmap = gs.bitmap;
     problem = gs.problem;
+    return *this;
+}
+
+/**
+ * Returns a vector of indices of the chosen solutions
+ * of a population using a roulette-wheel sampling
+ * technique (with simple elitism)
+ */
+vector<long> GeneticSolution::rouletteSelection(const vector<GeneticSolution> &population, long n) {
+    double groupFitness = 0;
+    vector<double> wheelRanges(1,0);
+
+    // Find the best objective function and index (for simple elitism)
+    double bestValue = population[0].value;
+    long bestIndex = 0;
+    for (auto i=1; i<population.size(); i++) {
+        if (bestValue > population[i].value) {
+            bestValue = population[i].value;
+            bestIndex = i;
+        }
+    }
+
+    // Create the wheel ranges
+    for (auto i=0; i<population.size(); i++) {
+        // Skip best solution
+        if (i == bestIndex) continue;
+
+        // Obtain fitness value
+        double fitness = population[i].value / bestValue; // #!
+
+        // Add fitness to group (using objective function value)
+        groupFitness += fitness;
+
+        // Add range
+        wheelRanges.push_back(groupFitness);
+    }
+
+    // Select the n elements from the population
+    vector<long> output;
+    double top = wheelRanges.back();
+    while (output.size() != n) {
+        // Generate random number in wheel range
+        double random = fmod(rand() * 10, top);
+
+        // Transform random in wheel index using binary search
+        long left = 0, right = wheelRanges.size()-1;
+        while (left < right-1) {
+            long mid = (left + right) / 2;
+            // Match case
+            if (wheelRanges[mid] <= random &&
+                random < wheelRanges[mid+1]) {
+                left = mid;
+                break;
+                // Left case
+            } else if (random < wheelRanges[mid]) {
+                right = mid;
+                // Right case
+            } else if (wheelRanges[mid+1] <= random) {
+                left = mid+1;
+            }
+        }
+
+        // Add to chosen and output
+        output.push_back(left);
+    }
+
+    // Return selection
+    return output;
 }
 
 /**
  * Makes a simple inversion in the genetic solution
  */
-void GeneticSolution::doInversion() {
-    // Choose range points for inversion
-    long start = rand() % (bitmap.size() - 1); // Unable to choose last
-    long end = (rand() % (bitmap.size() - 1)) + 1; // Unable to choose first
-    long topmid = (start + end + 1) / 2;
+void GeneticSolution::geneticCrossover (
+        GeneticSolution &p1,
+        GeneticSolution &p2) {
 
-    // From start to end, toggle inverts
-    for (auto i=start; i<topmid; i++) {
-        if (bitmap[i] != bitmap[end+start-i]) {
-            toggle(i);
-            toggle(end+start-i);
+    GeneticSolution o1(p1);
+    GeneticSolution o2(p2);
+
+    long size = p1.bitmap.size();
+    bool alternator = true;
+
+    // Fix differences between offsprings
+    for (auto i=0; i<size; i++) {
+        if (o1.bitmap[i] != o2.bitmap[i]) {
+            // First one receives it
+            if (alternator) {
+                if (!o1.bitmap[i]) o1.toggle(i);
+                if (o2.bitmap[i]) o2.toggle(i);
+            // Second one receives it
+            } else {
+                if (o1.bitmap[i]) o1.toggle(i);
+                if (!o2.bitmap[i]) o2.toggle(i);
+            }
+            alternator = !alternator;
         }
     }
+
+    // Offsprings replace parents if they improve them
+    if (p1.value < o1.value) p1 = o1;
+    if (p2.value < o2.value) p2 = o2;
 }
 
 /**

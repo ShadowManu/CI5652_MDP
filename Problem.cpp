@@ -305,11 +305,12 @@ void Problem::solveByGenetic() {
     for (auto i=0; i<N_GENERATIONS; i++) {
         // Selection of elements for crossover
         // Roulette-wheel sampling with simple elitism
-        vector<long> selection = rouletteSelection(population, (long) (population.size() * INVERSION_RATE));
+        vector<long> selection = GeneticSolution::rouletteSelection(population, ((long) (population.size() * INVERSION_RATE) >> 1 << 1));
 
-        // Crossover of selected elements by inversion operator
-        for (auto j : selection) {
-            population[j].doInversion();
+        // Crossover of selected elements by custom alternator operator
+        // Replacement in place
+        for (auto j=0; j<selection.size(); j+=2) {
+            GeneticSolution::geneticCrossover(population[selection[j]],population[selection[j+1]]);
         }
     }
 
@@ -323,7 +324,6 @@ void Problem::solveByGenetic() {
         }
     }
     solution.value = population[bestNode].value;
-
 }
 
 /**
