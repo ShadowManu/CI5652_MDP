@@ -48,6 +48,8 @@ int main(int argc, char *argv[]) {
         problem.solveByVNS();
     if (strcmp(argv[3],"tabu") == 0)
         problem.solveByTabu();
+    if (strcmp(argv[3],"genetic") == 0)
+        problem.solveByGenetic();
 
     // Save final solution
     double finalSolution = problem.solution.value;

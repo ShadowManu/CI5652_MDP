@@ -14,6 +14,7 @@
 #include <unordered_set>
 
 #include "Types.h"
+#include "Helpers.h"
 
 using namespace std;
 
@@ -284,6 +285,43 @@ void Problem::solveByTabu() {
         solutionIndices.clear();
         notChosenIndices.clear();
     }
+
+}
+
+/**
+ * Solve problem using genetic algorithm
+ */
+void Problem::solveByGenetic() {
+    const long POP_SIZE = 30;
+    const long N_GENERATIONS = 50;
+    const double INVERSION_RATE = 0.25;
+
+    // Generate initial population
+    vector<GeneticSolution> population(POP_SIZE,GeneticSolution(this));
+
+    // Generate a number a of generations
+    for (auto i=0; i<N_GENERATIONS; i++) {
+        // Selection of elements for crossover
+        // Roulette-wheel sampling with simple elitism
+        // TODO Random for now
+        vector<long> selection = chooseNRandomFromVector(population, (long) (population.size() * INVERSION_RATE));
+
+        // Crossover of selected elements by inversion operator
+        for (auto j : selection) {
+            population[j].doInversion();
+        }
+    }
+
+    // Get best solution with value
+    int bestNode = 0;
+    double bestValue = population[0].value;
+    for (auto i=0; i<population.size(); i++) {
+        if (bestValue < population[i].value) {
+            bestValue = population[i].value;
+            bestNode = i;
+        }
+    }
+    solution.value = population[bestNode].value;
 
 }
 

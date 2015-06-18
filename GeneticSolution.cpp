@@ -21,11 +21,11 @@ GeneticSolution::GeneticSolution() : nSolution(0), value(0), bitmap(), problem(n
 GeneticSolution::GeneticSolution(Problem *p) :
         nSolution(p->nSolution),
         value(0),
-        bitmap((unsigned long) p->nNodes, true),
+        bitmap((unsigned long) p->nNodes, false),
         problem(p) {
 
     // Generate options to activate
-    vector<long> options;// = vectorRange(bitmap.size());
+    vector<long> options = vectorRange(bitmap.size());
 
     // Choose nSolution elements
     for (auto i=0; i<nSolution; i++) {
@@ -75,9 +75,9 @@ void GeneticSolution::doInversion() {
 
     // From start to end, toggle inverts
     for (auto i=start; i<topmid; i++) {
-        if (bitmap[i] != bitmap[end-start+i]) {
+        if (bitmap[i] != bitmap[end+start-i]) {
             toggle(i);
-            toggle(end-start+i);
+            toggle(end+start-i);
         }
     }
 }

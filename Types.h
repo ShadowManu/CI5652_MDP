@@ -77,7 +77,7 @@ public:
     void solveByLocalSearch();
     void solveByVNS();
     void solveByTabu();
-    void solveByGA();
+    void solveByGenetic();
 
     long matIndex(long, long);
     double getEdge(long, long);
