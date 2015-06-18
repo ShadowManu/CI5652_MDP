@@ -292,19 +292,20 @@ void Problem::solveByTabu() {
  * Solve problem using genetic algorithm
  */
 void Problem::solveByGenetic() {
-    const long POP_SIZE = 30;
-    const long N_GENERATIONS = 50;
+    const long POP_SIZE = 100;
+    const long N_GENERATIONS = 200;
     const double INVERSION_RATE = 0.25;
 
     // Generate initial population
-    vector<GeneticSolution> population(POP_SIZE,GeneticSolution(this));
+    vector<GeneticSolution> population;
+    for (auto i=0; i<POP_SIZE; i++)
+        population.push_back(GeneticSolution(this));
 
     // Generate a number a of generations
     for (auto i=0; i<N_GENERATIONS; i++) {
         // Selection of elements for crossover
         // Roulette-wheel sampling with simple elitism
-        // TODO Random for now
-        vector<long> selection = chooseNRandomFromVector(population, (long) (population.size() * INVERSION_RATE));
+        vector<long> selection = rouletteSelection(population, (long) (population.size() * INVERSION_RATE));
 
         // Crossover of selected elements by inversion operator
         for (auto j : selection) {

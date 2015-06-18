@@ -11,7 +11,8 @@
 
 #include <vector>
 #include <algorithm>
-#include <cstdlib>
+
+#include "Types.h"
 
 using namespace std;
 
@@ -46,5 +47,7 @@ vector<long> chooseNRandomFromVector(const vector<T> &v, long n) {
 }
 
 vector<long> vectorRange(long);
+
+vector<long> rouletteSelection(const vector<GeneticSolution> &, long);
 
 #endif //CI5652_MDP_HELPERS_TCC
