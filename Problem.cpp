@@ -134,7 +134,7 @@ void Problem::solveByVNS() {
         for (int i=0; i<k; i++) {
             unordered_set<int> solutionIndices;
             unordered_set<int> notChosenIndices;
-            int solIndex;
+            long solIndex;
             int ncIndex;
 
             // Choose a random index from solution
@@ -200,7 +200,7 @@ void Problem::solveByTabu() {
 
         // Choose k from solution
         for (int i=0; i<k; i++) {
-            int solIndex;
+            long solIndex;
 
             // Choose a random index from solution
             do {
@@ -326,38 +326,86 @@ void Problem::solveByGenetic() {
     solution.value = population[bestNode].value;
 }
 
+
+/*
+ *  Combine two solution for ScatterSearch
+ */
+Solution Problem::combineSS(Solution a, Solution b){
+    Solution out(solution);
+
+    bool turn = true;
+    
+    for (int i=0; i<out.nSolution; i++){
+        if (turn) {
+            out.replaceIndexByValue(i, a.elements[i]);
+        } else {
+            out.replaceIndexByValue(i, b.elements[i]);
+        }
+        turn = !turn;
+    }
+
+    return out;
+}
+
+
+/*
+ * Compare two solution, and return number of nodes they don't share
+ */
+int Problem::difference(const Solution a, const Solution b){
+    int diff = 0;
+    for (int i=0; i<a.nSolution; i++){
+        for (int j=0; j<b.nSolution; j++) {
+            if (a.elements[i] == b.elements[j]){
+                diff++;
+                break;
+            }
+        }
+    }
+    return a.nSolution - diff;
+}
+
 /**
-  * Solve problem using Scatter Search
+  * Generate a Population P
   */
 vector<Solution> Problem::generateP(int sp){
 
 	vector<long> Nodes;
 	vector<Solution> P;
-    int solutionSinceReset;
+    //int solutionSinceReset = 0 ;
     
 	for (int i=0; i<sp; i++){
+        Solution currentSolution(solution);
         if (Nodes.size() < nSolution){
             Nodes = vectorRange(nNodes);
-            solutionSinceReset = 0;
+          //  solutionSinceReset = 0;
         }
         for (int j=0; j<nSolution; j++){
-            P[i].elements.push_back(pop_random(Nodes));
+            currentSolution.replaceIndexByValue(j,pop_random(Nodes));
         }
+        /*
         for (int j=0; j<Nodes.size(); j++){
-            P[i].notChosen.push_back(Nodes[j]);
+            currentSolution.notChosen.push_back(Nodes[j]);
         }
-        for (int j=0; j<solutionSinceReset; j++){
+
+        for (int j=0; j<solutionSinceReset;         for (int j=0; j<Nodes.size(); j++){
+            currentSolution.notChosen.push_back(Nodes[j]);
+        }j++){
             for (int k=0; k<nSolution; k++){
-                P[i].notChosen.push_back(P[j].elements[k]);
+                currentSolution.notChosen.push_back(P[j].elements[k]);
             }
         }
-        solutionSinceReset++;
+         */
+        P.push_back(currentSolution);
+//        solutionSinceReset++;
     }
 
 	return P;
 }
 
-vector<Solution> generateRefSetFromP(vector<Solution> &P, int SizeRefSet){
+/*
+ * Generate a Ref Set from a Population Set
+ */
+vector<Solution> Problem::generateRefSetFromP(vector<Solution> P, int sizeRefSet){
     vector<Solution> refSet;
     sort(P.begin(), P.end(), 
         [](Solution a, Solution b){ return a.value < b.value; });
@@ -366,71 +414,94 @@ vector<Solution> generateRefSetFromP(vector<Solution> &P, int SizeRefSet){
         P.pop_back();
     }
     for (int i=0; i<sizeRefSet/2; i++){
-        sort(P.begin(), P.end(), 
-            [](Solution a, Solution b){ return refSet[i].difference(a) < refSet[i].difference(b); });
-        refSet.push_back(P.back());
-        P.pop_back();
+        int bestIndex = 0;
+        int bestCompare = difference(refSet[i], P[0]);
+        for (int j=1; j<P.size(); j++){
+            int compare = difference(refSet[i], P[j]);
+            if (compare < bestCompare){
+                bestCompare = compare;
+                bestIndex = j;
+            }
+        }
+        refSet.push_back(P[bestIndex]);
+        P.erase(P.begin() + bestIndex);
     }
     return refSet;
 }
 
+/*
+ * Solve problem with Scatter Search Algorithm
+ */
 void Problem::solveByScatter(){
 	
 	// Size of P
 	const int SIZE_P = 50;
 	const int SIZE_B = 10;
-	const int MAX_ITER = 10;
+	const long MAX_ITER = 10;
+    const long MAX_REFSET_CHANGE = 10000000;
 	
     // Generation Phase of P
     vector<Solution> P = generateP(SIZE_P);
-    
     // Solutions in P Improvement
     for (int i=0; i<SIZE_P; i++){
         P[i].doLocalSearch();
     }
     
+    vector<Solution> refSet;
     
-    for (int iter=0; iter<MAX_ITER; iter++){
+    for (auto iter=0; iter<MAX_ITER; iter++){
     
          // Creation of RefSet
-         vector<Solution> refSet = generateRefSetFromP(P, SIZE_B);   
+         refSet = generateRefSetFromP(P, SIZE_B);   
          
          bool change = true;
          vector<Solution> combinations;
          vector<Solution> candidates;
 
-         while(change){
-            change = false;
-            combinations.clear();
+         for(auto j = 0; j<MAX_REFSET_CHANGE && change; j++){
+             change = false;
+             combinations.clear();
             
-            // Combinations of solutions in RefSet
-            for (int i=0; i<SIZE_B/2; i++) {
-                for (int j=0; j<SIZE_B/2; j++) {
-                    combinations.push_back(refSet[i].combineSS);
-                }
-            }
+             // Combinations of solutions in RefSet
+             for (int i=0; i<SIZE_B/2; i++) {
+                 for (int j=0; j<SIZE_B/2; j++) {
+                     combinations.push_back(combineSS(refSet[i], refSet[j+SIZE_B/2]));
+                 }
+             }
             
-            // Improvment of combinations
-            for (int i=0; i<combinations.size(); i++){
-                combinations[i].doLocalSearch();
-            }
+             // Improvment of combinations
+             for (int i=0; i<combinations.size(); i++){
+                 combinations[i].doLocalSearch();
+             }
             
-            // Update of RefSet
-            candidates = generateRefSetFromP(combinations, SIZE_B);
+             // Update of RefSet
+             candidates = generateRefSetFromP(combinations, SIZE_B);
             
-            for (int i=0; i<SIZE_B; i++){
-                bool included = false;
-                for (int j=0; j<SIZE_B; j++){
-                    if (candidates[i].difference(refSet[j]) > 0){
-                        included = true;
-                        break;
-                    }
-                }
-                if (included){
-                    break;
-                }
-            }
+             // Check change in RefSet
+             for (int i=0; i<SIZE_B; i++) {
+                 bool included = false;
+                 for (int j = 0; j < SIZE_B; j++) {
+                     if (difference(refSet[j], candidates[i]) == 0) {
+                         included = true;
+                         break;
+                     }
+                 }
+                 if (!included) {
+                     change = true;
+                     break;
+                 }
+             }
+
+             if (j==0  && iter==0 ) {
+                 solution = refSet.front();
+             } else {
+                 if (refSet.front().value > solution.value) {
+                     solution = refSet.front();
+                 }
+             }
          }
+         
+
     }
 	
 }

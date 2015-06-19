@@ -50,6 +50,8 @@ int main(int argc, char *argv[]) {
         problem.solveByTabu();
     if (strcmp(argv[3],"genetic") == 0)
         problem.solveByGenetic();
+    if (strcmp(argv[3],"scatter") == 0)
+        problem.solveByScatter();
 
     // Save final solution
     double finalSolution = problem.solution.value;

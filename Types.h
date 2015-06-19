@@ -37,7 +37,6 @@ public:
     void replaceIndexByIndex(long, long);
     void replaceIndexByValue(long, long);
     void recalcValue(long, long, long);
-    static Solution difference(Solution);
 };
 
 class GeneticSolution {
@@ -55,6 +54,7 @@ public:
     void toggle(long);
     static vector<long> rouletteSelection(const vector<GeneticSolution> &, long);
     static void geneticCrossover(GeneticSolution &, GeneticSolution &);
+    
 };
 
 class Problem {
@@ -79,6 +79,12 @@ public:
     void solveByVNS();
     void solveByTabu();
     void solveByGenetic();
+    
+    int difference(Solution, Solution);
+    Solution combineSS(Solution, Solution);
+    vector<Solution> generateRefSetFromP(vector<Solution>, int);
+    vector<Solution> generateP(int);
+    void solveByScatter();
 
     long matIndex(long, long);
     double getEdge(long, long);

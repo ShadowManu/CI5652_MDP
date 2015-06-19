@@ -1,6 +1,3 @@
-
-require 'hirb'
-Hirb.enable
 # Requires 3 arguments:
 # 0: Folder name
 # 1: Initial Solution strategy

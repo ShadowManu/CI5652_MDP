@@ -45,39 +45,6 @@ Solution& Solution::operator=(const Solution &s) {
     return *this;
 }
 
-/*
- * Compare two solution, and return number of nodes they don't share
- */
-int Solution::difference(const Solution s){
-    int diff = 0;
-    for (int i=0; i<s.nSolution; i++){
-        for (int j=0; j<s.nSolution; j++) {
-            if (this.elements[i] == s.elements[j]){
-                diff++;
-                break;
-            }
-        }
-    }
-    return diff;
-}
-
-/*
- *  Combine two solution for ScatterSearch
- */
-Solution combineSS(Solution a, Solution b){
-    Solution out = initRandom();
-    bool turn = true;
-    
-    for (int i=0; i<out.nSolution; i++){
-        if (turn) {
-            out.replaceIndexByValue(i, a.elements[i]);
-        } else {
-            out.replaceIndexByValue(i, b.elements[i]);
-        }
-    }
-
-    return out;
-}
 
 /**
  * Obtain problem initial solution
@@ -204,12 +171,20 @@ void Solution::replaceIndexByValue(long solIndex, long newNode) {
     for (ncIndex = 0; ncIndex<notChosen.size(); ncIndex++)
         if (notChosen[ncIndex] == newNode) break;
 
-    // Swap nodes
-    elements[solIndex] = newNode;
-    notChosen[ncIndex] = oldNode;
+    if (ncIndex == notChosen.size()) {
+        for (ncIndex = 0; ncIndex<elements.size(); ncIndex++)
+            if (elements[ncIndex] == newNode) break;
+        elements[solIndex] = newNode;
+        elements[ncIndex] = oldNode;
+    } else {
 
-    // Recalculate solution
-    recalcValue(solIndex, oldNode, newNode);
+        // Swap nodes
+        elements[solIndex] = newNode;
+        notChosen[ncIndex] = oldNode;
+        // Recalculate solution
+        recalcValue(solIndex, oldNode, newNode);
+    }
+
 
 }
 
