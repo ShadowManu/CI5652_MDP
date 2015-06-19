@@ -435,10 +435,10 @@ vector<Solution> Problem::generateRefSetFromP(vector<Solution> P, int sizeRefSet
 void Problem::solveByScatter(){
 	
 	// Size of P
-	const int SIZE_P = 50;
+	const int SIZE_P = 20;
 	const int SIZE_B = 10;
 	const long MAX_ITER = 10;
-    const long MAX_REFSET_CHANGE = 10000000;
+    const long MAX_REFSET_CHANGE = 20;
 	
     // Generation Phase of P
     vector<Solution> P = generateP(SIZE_P);
