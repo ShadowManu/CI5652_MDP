@@ -37,6 +37,7 @@ public:
     void replaceIndexByIndex(long, long);
     void replaceIndexByValue(long, long);
     void recalcValue(long, long, long);
+    static Solution difference(Solution);
 };
 
 class GeneticSolution {

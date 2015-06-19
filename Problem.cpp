@@ -327,6 +327,116 @@ void Problem::solveByGenetic() {
 }
 
 /**
+  * Solve problem using Scatter Search
+  */
+vector<Solution> Problem::generateP(int sp){
+
+	vector<long> Nodes;
+	vector<Solution> P;
+    int solutionSinceReset;
+    
+	for (int i=0; i<sp; i++){
+        if (Nodes.size() < nSolution){
+            Nodes = vectorRange(nNodes);
+            solutionSinceReset = 0;
+        }
+        for (int j=0; j<nSolution; j++){
+            P[i].elements.push_back(pop_random(Nodes));
+        }
+        for (int j=0; j<Nodes.size(); j++){
+            P[i].notChosen.push_back(Nodes[j]);
+        }
+        for (int j=0; j<solutionSinceReset; j++){
+            for (int k=0; k<nSolution; k++){
+                P[i].notChosen.push_back(P[j].elements[k]);
+            }
+        }
+        solutionSinceReset++;
+    }
+
+	return P;
+}
+
+vector<Solution> generateRefSetFromP(vector<Solution> &P, int SizeRefSet){
+    vector<Solution> refSet;
+    sort(P.begin(), P.end(), 
+        [](Solution a, Solution b){ return a.value < b.value; });
+    for (int i=0; i<sizeRefSet/2; i++){
+        refSet.push_back(P.back());
+        P.pop_back();
+    }
+    for (int i=0; i<sizeRefSet/2; i++){
+        sort(P.begin(), P.end(), 
+            [](Solution a, Solution b){ return refSet[i].difference(a) < refSet[i].difference(b); });
+        refSet.push_back(P.back());
+        P.pop_back();
+    }
+    return refSet;
+}
+
+void Problem::solveByScatter(){
+	
+	// Size of P
+	const int SIZE_P = 50;
+	const int SIZE_B = 10;
+	const int MAX_ITER = 10;
+	
+    // Generation Phase of P
+    vector<Solution> P = generateP(SIZE_P);
+    
+    // Solutions in P Improvement
+    for (int i=0; i<SIZE_P; i++){
+        P[i].doLocalSearch();
+    }
+    
+    
+    for (int iter=0; iter<MAX_ITER; iter++){
+    
+         // Creation of RefSet
+         vector<Solution> refSet = generateRefSetFromP(P, SIZE_B);   
+         
+         bool change = true;
+         vector<Solution> combinations;
+         vector<Solution> candidates;
+
+         while(change){
+            change = false;
+            combinations.clear();
+            
+            // Combinations of solutions in RefSet
+            for (int i=0; i<SIZE_B/2; i++) {
+                for (int j=0; j<SIZE_B/2; j++) {
+                    combinations.push_back(refSet[i].combineSS);
+                }
+            }
+            
+            // Improvment of combinations
+            for (int i=0; i<combinations.size(); i++){
+                combinations[i].doLocalSearch();
+            }
+            
+            // Update of RefSet
+            candidates = generateRefSetFromP(combinations, SIZE_B);
+            
+            for (int i=0; i<SIZE_B; i++){
+                bool included = false;
+                for (int j=0; j<SIZE_B; j++){
+                    if (candidates[i].difference(refSet[j]) > 0){
+                        included = true;
+                        break;
+                    }
+                }
+                if (included){
+                    break;
+                }
+            }
+         }
+    }
+	
+}
+
+
+/**
  * Get edge weigth from source and dest
  */
 double Problem::getEdge(long i, long j) {
