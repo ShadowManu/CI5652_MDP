@@ -52,6 +52,7 @@ public:
     GeneticSolution& operator=(const GeneticSolution &);
 
     void toggle(long);
+    void mutate();
     static vector<long> rouletteSelection(const vector<GeneticSolution> &, long);
     static void geneticCrossover(GeneticSolution &, GeneticSolution &);
 };
