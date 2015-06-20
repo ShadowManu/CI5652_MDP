@@ -182,3 +182,26 @@ void GeneticSolution::toggle(long i) {
             value += problem->getEdge(i,j) * direction;
     }
 }
+
+/**
+ * Mutates the bit of a solution
+ */
+void GeneticSolution::mutate() {
+    const long trueJumps = rand() % nSolution + 1;
+    const long falseJumps = rand() % (problem->nNodes - nSolution) + 1;
+    long jumps, i;
+
+    // Remove a random bit
+    for (i=0, jumps=0; i <bitmap.size(); ++i) {
+        if (bitmap[i]) jumps++;
+        if (jumps==trueJumps) break;
+    }
+    this->toggle(i);
+
+    // Add a random bit
+    for (i=0, jumps=0; i<bitmap.size(); ++i) {
+        if (!bitmap[i]) jumps++;
+        if (jumps==falseJumps) break;
+    }
+    this->toggle(i);
+}
