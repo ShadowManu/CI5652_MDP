@@ -1,12 +1,12 @@
-// Binary files
+# Binary files
 build
 mdp
 
-// Tex temps
+# Tex temps
 *.aux
 *.log
 *.out
 *.synctex.gz
 
-// Clion files
+# Clion files
 .idea
