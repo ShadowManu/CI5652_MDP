@@ -295,6 +295,7 @@ void Problem::solveByGenetic() {
     const long POP_SIZE = 100;
     const long N_GENERATIONS = 200;
     const double INVERSION_RATE = 0.25;
+    const long MUTATION_RATIO = 4;
 
     // Generate initial population
     vector<GeneticSolution> population;
@@ -305,19 +306,25 @@ void Problem::solveByGenetic() {
     for (auto i=0; i<N_GENERATIONS; i++) {
         // Selection of elements for crossover
         // Roulette-wheel sampling with simple elitism
-        vector<long> selection = GeneticSolution::rouletteSelection(population, ((long) (population.size() * INVERSION_RATE) >> 1 << 1));
+        vector<long> selection = GeneticSolution::rouletteSelection(population, ((long) (POP_SIZE * INVERSION_RATE) >> 1 << 1));
 
         // Crossover of selected elements by custom alternator operator
         // Replacement in place
         for (auto j=0; j<selection.size(); j+=2) {
             GeneticSolution::geneticCrossover(population[selection[j]],population[selection[j+1]]);
         }
+
+        // Mutation
+        for (long i=0; i< POP_SIZE; i+=MUTATION_RATIO) {
+            long extra = rand() % (i+MUTATION_RATIO < POP_SIZE ? MUTATION_RATIO : POP_SIZE - i);
+            population[i+extra].mutate();
+        }
     }
 
     // Get best solution with value
     int bestNode = 0;
     double bestValue = population[0].value;
-    for (auto i=0; i<population.size(); i++) {
+    for (auto i=0; i< POP_SIZE; i++) {
         if (bestValue < population[i].value) {
             bestValue = population[i].value;
             bestNode = i;
@@ -485,7 +492,7 @@ void Problem::solveByScatter(){
 
 
 /**
- * Get edge weigth from source and dest
+ * Get edge weight from source and dest
  */
 double Problem::getEdge(long i, long j) {
     return matrix[matIndex(i,j)];
