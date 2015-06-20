@@ -8,13 +8,14 @@
 ## Descripción
 El proyecto es un estudio del resultado de la aplicación de metaheurísticas de
 búsqueda local, trayectoria y poblacionales para la resolución del problema
-MDP descrito en [opticom.es](http://www.optsicom.es/mdp/) a través de la
+MDP descrito en [optsicom.es](http://www.optsicom.es/mdp/) a través de la
 implementación de las metaheurísticas en el lenguaje C++.
 
 ## Instancias del problema utilizados
-Actualmente el repositorio contiene una serie de instancias contenidas en el
-directorio `testcases` para las pruebas iniciales, mas queda pendiente
-seleccionar un conjunto final.
+Se utilizan instancias de los sets SOM-b, GKD-c, MDG-b y MDG-c, clasificados
+por nosotroms como problemas small, medium and large. Estos se encuentran comprimidos
+en la carpeta `testcases` y pueden ser descomprimidos usando `make extract-cases`,
+y eliminados usando `make clean-cases`.
 
 ## Como obtener y construir el proyecto
 Para obtener el proyecto, puede utilizarse la interfaz de GitHub o bajo el
@@ -27,10 +28,23 @@ obtenido, el proyecto puede construirse con `make build` o simplemente `make`
 
 El ejecutable resultante estará ubicado en la misma carpeta con el nombre `mdp`.
 
-## Como correr el proyecto (esta sección aun no es válida)
-El programa espera como primer argumento, la ruta del archivo que
-contiene la instancia del problema. Como segundo argumento, la ruta del archivo
-de salida con resultados del algoritmo. De faltar alguno de los argumentos, se
-utilizará la entrada y salida estándar en cada caso. Ej:
+## Como correr el proyecto
+El programa espera 4 argumentos:
+* Nombre de archivo
+* Estrategia de solución inicial
+* Metaheurística a utilizar
+* Random seed (opcional)
 
-`./mdp MDG-x.txt resultados.txt`
+Ejemplo:
+
+`./mdp GKD-c_1_n500_m50.txt random localsearch 3467981`
+
+El programa da 3 resultados en orden:
+* Solución inicial
+* Solución final
+* Tiempo de ejecución
+
+Alternativamente, el proyecto posee un script en Ruby donde se pueden correr
+carpetas de archivos con un número de corridas deseado.
+
+`./ruby runner.rb ./testcases/small greedy localsearch 15`
