@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
     // Arg 4: Random seed
 
     // Startup random seed
-    srand((unsigned int) stoi(argv[4]));
+    srand((unsigned int) ((argc < 5) ? time(NULL) : stoi(argv[4])));
 
     // Read problem data
     Problem problem(Problem::fromFile(argv[1]));

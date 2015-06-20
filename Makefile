@@ -9,3 +9,9 @@ build: cmake
 
 clean:
 	rm -rf ./build ./mdp
+
+extract-cases:
+	7z x ./testcases.7z -o./testcases
+
+clean-cases:
+	rm -rf ./testcases
