@@ -326,7 +326,6 @@ void Problem::solveByGenetic() {
     solution.value = population[bestNode].value;
 }
 
-
 /*
  *  Combine two solution for ScatterSearch
  */
@@ -482,7 +481,6 @@ void Problem::solveByScatter(){
     }
 	
 }
-
 
 /**
  * Get edge weigth from source and dest
