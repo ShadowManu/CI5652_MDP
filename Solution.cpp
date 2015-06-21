@@ -185,7 +185,6 @@ void Solution::replaceIndexByValue(long solIndex, long newNode) {
         recalcValue(solIndex, oldNode, newNode);
     }
 
-
 }
 
 /**

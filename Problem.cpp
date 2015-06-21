@@ -12,6 +12,7 @@
 
 #include <algorithm>
 #include <unordered_set>
+#include <queue>
 
 #include "Types.h"
 #include "Helpers.h"
@@ -183,108 +184,54 @@ void Problem::solveByVNS() {
 void Problem::solveByTabu() {
 
     const int k = (int) (nSolution * 0.1); // TODO CHECK
-    const int MAX_ITERATIONS = 10000000; // TODO CHECK
-    const int MAX_TRIES = 1000; // TODO CHECK
+    const int MAX_ITERATIONS = 1000000; // TODO CHECK
+    const int MAX_TABUSIZE = nSolution * 0.30; // TODO CHECK
     const int JAIL_TIME = 30;
 
-    solution.doLocalSearch();
     Solution workingSolution(solution);
 
-    unordered_set<int> tabuIndices;
-    vector<int> tabuTimers(solution.notChosen.size(), 0);
+    bool jail [nNodes][nNodes];
+    for (int i=0; i<nNodes; i++){
+        for (int j=0; j<nNodes; j++){
+            jail[i][j] = true;
 
-    int noChange = 0;
-    for (int numIterations = 0; numIterations < MAX_ITERATIONS && noChange < MAX_TRIES; numIterations++) {
-        unordered_set<int> notChosenIndices;
-        unordered_set<int> solutionIndices;
-
-        // Choose k from solution
-        for (int i=0; i<k; i++) {
-            long solIndex;
-
-            // Choose a random index from solution
-            do {
-                solIndex = (rand() % nSolution);
-            } while (solutionIndices.find(solIndex) != solutionIndices.end());
-            solutionIndices.insert(solIndex);
         }
-
-        // If k nodes can be chosen (not many tabooes)
-        if (solution.notChosen.size() - tabuIndices.size() >= k) {
-
-            // Choose the k nodes from not chosen (and not in taboo)
-            for (int i=0; i<k; i++) {
-                int ncIndex;
-                do {
-                    ncIndex = (int) (rand() % workingSolution.notChosen.size());
-                } while (notChosenIndices.find(ncIndex) != notChosenIndices.end() ||
-                        tabuIndices.find(ncIndex) != tabuIndices.find(ncIndex));
-                notChosenIndices.insert(ncIndex);
-            }
-
-        // Otherwise, we complete with taboo
-        }
-        else {
-            int possible = (int) (solution.notChosen.size() - tabuIndices.size());
-
-            // The ones we can take normally
-            for (int j=0; j<possible; j++) {
-                int ncIndex;
-                do {
-                    ncIndex = (int) (rand() % workingSolution.notChosen.size());
-                } while (notChosenIndices.find(ncIndex) != notChosenIndices.end() ||
-                         tabuIndices.find(ncIndex) != tabuIndices.find(ncIndex));
-                notChosenIndices.insert(ncIndex);
-            }
-
-            // The ones we complete with taboo ones
-            for (int j=0; j<k-possible; j++) {
-                int ncIndex;
-                do {
-                    ncIndex = (int) (rand() % workingSolution.notChosen.size());
-                } while (notChosenIndices.find(ncIndex) != notChosenIndices.end());
-                notChosenIndices.insert(ncIndex);
-                tabuIndices.erase(ncIndex); // Free from taboo
-            }
-        }
-
-        // Replace the k nodes
-        for (auto it1 = solutionIndices.begin(), it2 = notChosenIndices.begin(); it1 != solutionIndices.end(); it1++, it2++) {
-            workingSolution.replaceIndexByIndex(*it1, *it2);
-        }
-
-        // If it is a better solution
-        if (solution.value < workingSolution.value) {
-            solution = workingSolution;
-            solution.doLocalSearch();
-            tabuIndices.clear();
-            fill(tabuTimers.begin(),tabuTimers.end(),0);
-            noChange = 0;
-
-        // If it isn't
-        } else {
-            noChange++;
-            // Rewind the working solution
-            workingSolution = solution;
-
-            // Decrease jail time
-            for (int i=0; i<tabuTimers.size(); i++) {
-                if (tabuTimers[i] > 0) {
-                    tabuTimers[i]--;
-                }
-            }
-
-            // Mark used nodes as taboo
-            for (auto it = notChosenIndices.begin(); it != notChosenIndices.end(); it++) {
-                tabuIndices.insert(*it);
-                tabuTimers[*it] = JAIL_TIME;
-            }
-        }
-
-        // Clear sets
-        solutionIndices.clear();
-        notChosenIndices.clear();
     }
+
+    queue<pair<int,int>> freeChange;
+
+    for (long iter=0; iter<MAX_ITERATIONS; iter++) {
+
+        vector<long> elemToTake = chooseNRandomFromVector(workingSolution.notChosen, k);
+        vector<long> elemToDrop = chooseNRandomFromVector(workingSolution.elements, k);
+
+        for (int i=0; i<elemToDrop.size(); i++){
+            if (jail[workingSolution.elements[elemToDrop[i]]][workingSolution.notChosen[elemToTake[i]]]){
+
+                jail[workingSolution.elements[elemToDrop[i]]][workingSolution.notChosen[elemToTake[i]]] = false;
+
+                freeChange.push(make_pair(workingSolution.elements[elemToDrop[i]],workingSolution.notChosen[elemToTake[i]]));
+                workingSolution.replaceIndexByValue(elemToDrop[i],workingSolution.notChosen[elemToTake[i]]);
+            } else {
+                elemToTake[i] = rand() % workingSolution.notChosen.size();
+                i--;
+                //cout << "hola";
+            }
+
+        }
+
+        if (workingSolution.value > solution.value) {
+            solution = workingSolution;
+        }
+        //cout << iter << "\n";
+        if (iter > JAIL_TIME && freeChange.size() >= k) {
+            for (int i=0; i<k; i++) {
+                jail[freeChange.front().first][freeChange.front().second] = true;
+                freeChange.pop();
+            }
+        }
+    }
+
 
 }
 
@@ -332,7 +279,6 @@ void Problem::solveByGenetic() {
     }
     solution.value = population[bestNode].value;
 }
-
 
 /*
  *  Combine two solution for ScatterSearch
@@ -489,7 +435,6 @@ void Problem::solveByScatter(){
     }
 	
 }
-
 
 /**
  * Get edge weight from source and dest
