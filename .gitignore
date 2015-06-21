@@ -10,3 +10,6 @@ mdp
 
 # Clion files
 .idea
+
+# Test Cases files
+testcases
