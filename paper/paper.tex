@@ -7,6 +7,7 @@
 \usepackage{paralist}
 \usepackage[ruled,vlined,linesnumbered]{algorithm2e}
 \usepackage{graphicx}
+\usepackage[labelfont=bf,textfont=it,small]{caption}
 
 \setlength{\parskip}{0.5em}
 
@@ -73,7 +74,7 @@ En la mayoría de los problemas trabajados, las soluciones aleatorias rondan gen
 
 En la mayoría de los problemas se intenta utilizar la solución greedy sobre la aleatoria. Para LS, ILS y TS se utiliza greedy. Para las metaheurísticas poblacionales GA y SS, se inicia con soluciones aleatorias.
 
-\section{Local Search}
+\section{Local Search (LS)}
 El primer algoritmo implementado consiste en Búsqueda Local. Durante la búsqueda, el objetivo es mejorar una solución existente modificando aquellos elementos que lleven la solución a acercarse a un óptimo (al menos de forma local).
 
 La implementación de LS esta basada en el uso de $k\text{--}opt$, con 4 características en las cuales hacer énfasis:
@@ -89,20 +90,20 @@ El algoritmo utilizado es equivalente al aquí mostrado, abstrayendo las particu
 
 \begin{algorithm}
 \DontPrintSemicolon
-$S \leftarrow$ Solucion existente\;
+$S \leftarrow$ Solucion del problema\;
 $S_i \leftarrow$ elemento $i$ de la solucion\;
 $U \leftarrow$ elementos no escogidos\;
 $P \leftarrow$ elementos del problema\;
 \Begin{
+	$S \leftarrow$ SolucionInicial()\;
 	\ForEach{$i \in |S|$ de derecha a izquierda}{
 		$U' \leftarrow$ NH\_SIZE elementos aleatorios de U\;
 		\ForEach{$u \in U'$}{
 			$S' \leftarrow$ S con $S_i$ reemplazado por u\;
 			\If{$valor(S') > valor(S)$}{
 				$S \leftarrow S'$\;
-				Marcar $u$ como mejor candidato
 			}
-			\If{pasan MAX\_REPEATS iteraciones sin marcar $u$}{
+			\If{pasan MAX\_REPEATS iteraciones sin cambiar $S$}{
 				break\;
 			}
 		}			
@@ -110,76 +111,77 @@ $P \leftarrow$ elementos del problema\;
 }
 \end{algorithm}
 
-Para $NH\_SIZE$ y $MAX\_REPEATS$ se entonaron los valores de $\frac{|P|-|S|}{5}$ y $30$ respectivamente.
+Para NH\_SIZE y MAX\_REPEATS se entonaron los valores de $\frac{|P|-|S|}{5}$ y $30$ respectivamente.
 
-\begin{algorithm}
-  \DontPrintSemicolon
-  \vspace*{0.1cm}
-  $V \leftarrow$ vector de arcos\;
-  $S \leftarrow$ vector solución inicial\;
-  $C \leftarrow$ vector de elementos no elegidos\;
-  $IS \leftarrow \emptyset$ // conjunto de cambios probados\;
-  $Itera \leftarrow true$ // cota de salida\;
-  $localIter \leftarrow 0$\;
-  $totalIter \leftarrow 0$\;
-  $pivote \leftarrow |S|-1$\;
-  $distanciaActual = Distancia(S)$\;
-  \While{true}{
-    \eIf{$localIter < MAX\_LOCAL\_LITER \land localIter < |Nodos| - |S|$}{
-      $NodoAleatorio \leftarrow Rand(C)$\;
-      \If{$NodoAleatorio \in IS$}{
-        \textbf{continue}\;
-      }
-      IS $\leftarrow IS \cup \{NodoAleatorio\}$\;
-      $respaldo \leftarrow pivote$\;
-      $pivote \leftarrow nodoAleatorio$\;
-      \eIf{$Distancia(S) > distanciaActual$}{
-        $DistanciaActual = Distancia(S)$\;
-        $C = C - nodoAleatorio + respaldo$\;
-      }{
-        $pivote = Respaldo$\;
-      }
-      $localIter++$\;
-      $totalIter++$\;
-    }{
-      $IS \leftarrow \emptyset$\;
-      $localIter = 0$\;
-      $pivote--$\;
-    }
-    \If{$totalIter > MAX\_ITER \lor pivote < 0$}{
-      \KwRet{$distanciaActual$}\;
-    }
-  }
-\end{algorithm}
+\subsection{Resultados de Local Search}
+La aplicación de LS a una solución dada, en general logra mejorar la solución y acercarla hacia el óptimo (en general, local). Quizá uno de los resultados más importantes en una revisión individual de LS, es cómo se comporta con diferentes soluciones. En la figura ~\ref{fig:localsearch-solution-randomgreedy}, se hacen 15 pruebas sobre 5 problemas del set mediano iniciando con una solución aleatoria (r) y una solución greedy (g).
+El comportamiento observado es el esperado: local search mejora localmente una solución dada; con una solución greedy se obtienen mejores resultados pero sucesivas aplicaciones de LS a una solución arbitraria podrían igualmente obtenerlos.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-\begin{figure}[p]
+\begin{figure*}[]
 	\setlength\fboxsep{0pt}
 	\setlength\fboxrule{0.5pt}
-	\fbox{\includegraphics[width=\linewidth]{scatter-solution-medium}}
-	\caption{Comparación de soluciones de SS en problemas de tamaño mediano.}
-	\label{fig:ss_s_m}
-	\label{fig:ss_s_m}
-\end{figure}
+	\fbox{\includegraphics[width=\textwidth]{localsearch-solution-randomgreedy}}
+	\caption{Comparación de soluciones de LS utilizando soluciones random y greedy en problemas de tamaño mediano.}
+	\label{fig:localsearch-solution-randomgreedy}
+\end{figure*}
 
-\section{Búsqueda ILS}
+\section{Genetic Algorithm (GA)}
+El algoritmo genético consiste en una simulación genética de las soluciones, donde se posee una población donde cada individuo representa una instancia de solución y se aplican simulaciones de selección, cruce y mutación genéticas a modo de imitación del proceso natural de los seres vivos. Se implementó un algoritmo genético generacional para la resolución de este problema: las nuevas poblaciones reemplazan a las anteriores, manteniendo el mismo tamaño en la población durante todo el algoritmo.
+
+\subsection{Representacion del Cromosoma de GA}
+Dada las características del problema, la representación utilizada en las demás metaheurísticas era poco útil/eficiente para la implementación de un operador de cruce en GA. En esta metaheurística, se utiliza la representación completa, descrita en la sección \textit{"Representación de la solución"}.
+
+\subsection{Población Inicial}
+Se utiliza una población inicial de tamaño fijo y cada elemento es construido de forma aleatoria.
+
+\subsection{Operador de Selección de GA}
+Para la selección de los individuos a ser utilizados en el cruce, se utilizó roulette-wheel sampling con elitismo simple: se seleccionan individuos al azar con tendencia a los individuos con mejor "fitness". El fitness es directamente proporcional al valor de la función objetivo. Con respecto al elitismo simple, no se permite elegir al mejor individuo de la población.
+
+\subsection{Operador de Cruce de GA}
+Dadas las características del problema El operador de cruce implementado es un operador personalizado, de 2 padres a 2 hijos, descrito informalmente de la siguiente forma: \textit{en las componentes en que los padres coinciden, los hijos coinciden. En las componentes que solo 1 padre lo posee, se reparten alternativamente entre los 2 hijos}. Adicionalmente, se tiene la condición de que los hijos reemplazan a sus padres si poseen mejor fitness.
+
+\subsection{Operador de Mutación de GA}
+Utilizamos un operador de mutación bastante simple y débil: se intercambia un elemento presente en la solución por uno que no este presente en la solución. Sin embargo, la mutación se usa con una muy alta probabilidad: al final de cada generación, 1 de cada MUTATION\_SIZE elementos (seleccionados al azar) son mutados. Esta alta probabilidad de mutación resultó en mejores resultados para GA en los problemas medianos.
+
+\subsection{Algoritmo de GA}
+\begin{algorithm}
+\DontPrintSemicolon
+$P \leftarrow$ Poblacion de invididuos\;
+$C \leftarrow$ Individuos Elegidos\;
+$S_i \leftarrow$ Solucion $i$ de un conjunto de soluciones\;
+\Begin{
+	$P \leftarrow$ PoblacionInicial(POP\_SIZE)\;
+	\For{$i = 1 \to $ N\_GENERATIONS}{
+		$C \leftarrow$ Seleccion(P)\;
+		\ForEach{$S_i,S_{i+1} \in C$}{
+			$S'_i,S'_{i+1} \leftarrow$ Cruce($S_i,S_{i+1}$)\;
+			\If{fitness($S'_i$) $>$ fitness($S_i$)}{
+				replace($S'_i$,$S_i$,P)\;
+			}
+			\If{fitness($S'_i+1$) $>$ fitness($S_i+1$)}{
+				replace($S'_i+1$,$S_i+1$,P)\;
+			}
+		}
+		Mutacion(P,MUTATION\_SIZE);
+	}
+}
+\end{algorithm}
+
+Para los valores de POP\_SIZE, N\_GENERATIONS y MAX\_REPEATS se entonaron los valores de $100$, $200$ y $4$ respectivamente.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% All is good down to this line
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\begin{figure}[ht]
+%	\setlength\fboxsep{0pt}
+%	\setlength\fboxrule{0.5pt}
+%	\fbox{\includegraphics[width=\linewidth]{scatter-solution-medium}}
+%	\caption{Comparación de soluciones de SS en problemas de tamaño mediano.}
+%	\label{fig:ss_s_m}
+%\end{figure}
+
+\section{Iterated Local Search}
 En la implementación de la metaheurística de búsqueda local iterativa, a partir de una solución inicial, comienza un ciclo de donde se perturba la mejor solución, se mejora esa solución parcial y se comparan las soluciones. La perturbación consiste en intercambiar aleatoriamente \textit{k} nodos de la solución parcial por nodos no elegidos. El mejoramiento es realizar una búsqueda local a la solución obtenida por la perturbación. Luego se compara la solución parcial con la mejor solución obtenida, y se actualiza la segundar de ser mejor la solución parcial.
 
 Si transcurren \textit{h} ciclos sin que mejore la solución, se procede a aumentar la perturbación, aumentando en uno el \textit{k}. Este ciclo ocurre hasta que se cumpla un número máximo de iteraciones, o el valor \textit{k} de las perturbaciones supera el tamaño de la solución.
