@@ -6,8 +6,11 @@
 \usepackage{subfigure}
 \usepackage{paralist}
 \usepackage[ruled,vlined,linesnumbered]{algorithm2e}
+\usepackage{graphicx}
 
-\setlength{\parskip}{1em}
+\setlength{\parskip}{0.5em}
+
+\graphicspath{ {./images/} }
 
 %----------------------- Macros and Definitions --------------------------
 
@@ -60,48 +63,54 @@ Para la representación de una solución del problema se utilizan dos alternativ
 Sea el conjunto de elementos de tamaño $n$ y la solución de tamaño $m$, se opta por representar la solución como un vector de tamaño $m$ donde cada componente contiene la etiqueta del elemento escogido. Para GA se utiliza una representación completa: un vector de tamaño $n$ donde cada componente está permanentemente asociada a un elemento del problema e indica si pertenece o no a la solución (i.e. un $x_i$ como en la descripción del problema).
 
 \section{Solución Inicial}
-Dependiendo de la metaheurística a utilizar se usan métodos de construcción de las soluciones iniciales de forma diferente. La primera es la clásica solución aleatoria: se seleccionan los elementos que pertenecen a la solución al azar. La segunda sigue un principio de intuición que denominamos Potencial de un elemento definida de la siguiente forma:
+Dependiendo de la metaheurística a utilizar se usan métodos de construcción de las soluciones iniciales de forma diferente. La primera es la clásica solución aleatoria: se seleccionan los elementos que pertenecen a la solución al azar. La segunda sigue un principio de intuición que denominamos $Potencial$ de un elemento definida de la siguiente forma:
 
 $$P(i)=\sum_{j=1}^{n}d_{ij}$$
 
-De manera informal, el Potencial de un elemento indica cuánto aporta a la función objetivo si se tomasen en cuenta todas las conexiones con todos los demás elementos. Por tanto, elegimos los primeros $m$ nodos que tengan mayor potencial. Definimos a esta estrategia como solución inicial greedy.
+De manera informal, el $Potencial$ de un elemento indica cuánto aporta a la función objetivo si se tomasen en cuenta todas las conexiones con todos los demás elementos. Por tanto, elegimos los primeros $m$ nodos que tengan mayor potencial. Definimos a esta estrategia como solución inicial greedy.
 
-En la mayoría de los problemas trabajados, las soluciones aleatorias rondan generalmente entre 50\% y 75\% del valor de las mejores soluciones encontradas en la librería (soluciones referencia), dependiendo del tamaño del problema, siendo las peores los de problemas más grandes. La solución greedy supera el 95\% y tiende a llegar tan alto como 98\% de la solución referencia.
+En la mayoría de los problemas trabajados, las soluciones aleatorias rondan generalmente entre 50\% y 75\% del valor de las mejores soluciones encontradas en la librería (soluciones referencia), dependiendo del tamaño del problema, siendo las peores las de problemas más grandes. La solución greedy supera el 95\% y tiende a llegar tan alto como 98\% de la solución referencia.
 
 En la mayoría de los problemas se intenta utilizar la solución greedy sobre la aleatoria. Para LS, ILS y TS se utiliza greedy. Para las metaheurísticas poblacionales GA y SS, se inicia con soluciones aleatorias.
 
 \section{Local Search}
-hey
-\subsection{Inicio}
-hola
+El primer algoritmo implementado consiste en Búsqueda Local. Durante la búsqueda, el objetivo es mejorar una solución existente modificando aquellos elementos que lleven la solución a acercarse a un óptimo (al menos de forma local).
 
+La implementación de LS esta basada en el uso de $k\text{--}opt$, con 4 características en las cuales hacer énfasis:
+\begin{itemize} \itemsep5pt
+	\item Se busca mejorar los $m$ componentes de la solución.
+	\item Los vecinos de cada componente son definidos en base al tamaño $n$ del problema.
+	\item Cada componente es reemplazada por el mejor candidato encontrado
+	\item La búsqueda por componente se detiene si ha pasado un numero de iteraciones sin conseguir una solución candidata que mejore la solución actual.
+\end{itemize}
 
+\subsection{Algoritmo de Local Search}
+El algoritmo utilizado es equivalente al aquí mostrado, abstrayendo las particularidades de implementación y optimización del algoritmo. Esto aplica a todos los algoritmos mostrados en el presente documento.
 
+\begin{algorithm}
+\DontPrintSemicolon
+$S \leftarrow$ Solucion existente\;
+$S_i \leftarrow$ elemento $i$ de la solucion\;
+$U \leftarrow$ elementos no escogidos\;
+$P \leftarrow$ elementos del problema\;
+\Begin{
+	\ForEach{$i \in |S|$ de derecha a izquierda}{
+		$U' \leftarrow$ NH\_SIZE elementos aleatorios de U\;
+		\ForEach{$u \in U'$}{
+			$S' \leftarrow$ S con $S_i$ reemplazado por u\;
+			\If{$valor(S') > valor(S)$}{
+				$S \leftarrow S'$\;
+				Marcar $u$ como mejor candidato
+			}
+			\If{pasan MAX\_REPEATS iteraciones sin marcar $u$}{
+				break\;
+			}
+		}			
+	}	
+}
+\end{algorithm}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-\section{Local Search}
-
-En la implementación de búsqueda local se decide por 
+Para $NH\_SIZE$ y $MAX\_REPEATS$ se entonaron los valores de $\frac{|P|-|S|}{5}$ y $30$ respectivamente.
 
 \begin{algorithm}
   \DontPrintSemicolon
@@ -143,6 +152,32 @@ En la implementación de búsqueda local se decide por
   }
 \end{algorithm}
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\begin{figure}[p]
+	\setlength\fboxsep{0pt}
+	\setlength\fboxrule{0.5pt}
+	\fbox{\includegraphics[width=\linewidth]{scatter-solution-medium}}
+	\caption{Comparación de soluciones de SS en problemas de tamaño mediano.}
+	\label{fig:ss_s_m}
+	\label{fig:ss_s_m}
+\end{figure}
 
 \section{Búsqueda ILS}
 En la implementación de la metaheurística de búsqueda local iterativa, a partir de una solución inicial, comienza un ciclo de donde se perturba la mejor solución, se mejora esa solución parcial y se comparan las soluciones. La perturbación consiste en intercambiar aleatoriamente \textit{k} nodos de la solución parcial por nodos no elegidos. El mejoramiento es realizar una búsqueda local a la solución obtenida por la perturbación. Luego se compara la solución parcial con la mejor solución obtenida, y se actualiza la segundar de ser mejor la solución parcial.
