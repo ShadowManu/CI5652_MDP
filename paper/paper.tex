@@ -19,7 +19,7 @@
 
 %----------------------- Title -------------------------------------------
 
-\title{Proposición de solución al problema Maximum Diversity Problem (MDP)}
+\title{Estudio de Aplicación de Metaheurísticas al \\ problema Maximum Diversity Problem (MDP)}
 
 \author{Cristian Medina
         \and
@@ -33,13 +33,18 @@
 
 
 \begin{abstract}
-El problema de máxima diversidad (Maximum Diversity Problem), consiste en elegir M elementos de un conjunto de N elementos tal que las suma de las distancias entre los elementos elegidos sea la máxima posible.
-Las aplicaciones de este problema se pueden  encontrar en estudios genéticos, sistemas ecológicos, controles de inmigración, tratamientos médicos, entre otros. Ha sido un caso de estudio para la aplicación de heurísticas y metaheurísticas, particularmente para la búsqueda local.
-Fue catalogado como un problema NP-Hard en 1993 por Kou, Glover y Dhit al reducir el problema de clique a MDP.
+El problema de máxima diversidad (Maximum Diversity Problem), consiste en elegir M elementos de un conjunto de N elementos tal que las suma de las distancias entre los elementos elegidos sea la máxima posible. Catalogado como un problema NP-Hard en 1993 por Kou, Glover y Dhit, el problema está formalmente estipulado bajo la siguiente fórmulas de función objetivo y restricción de tamaño:
 
-Kou introdujo la siguiente formulación del problema:
 $$\sum_{i=1}^{n-1} \sum_{j=i+1}^n d_{ij}x_ix_j$$
+$$\sum_{i=1}^{n}x_i<m$$ 
 Donde $n$ es la cardinalidad de elementos del conjunto, $m$ la cantidad de elementos elegidos, $d_{ij}$ es la distancia entre el elemento $i$ y el elemento $j$, $x_i$ es una función booleana que toma el valor de 1 si el elemento $i$ fue elegido, 0 si no fue elegido.
+
+
+ 
+Las aplicaciones de este problema se pueden  encontrar en estudios genéticos, sistemas ecológicos, controles de inmigración, tratamientos médicos, entre otros. Ha sido un caso de estudio para la aplicación de heurísticas y metaheurísticas, particularmente para la búsqueda local. Fue catalogado como un problema NP-Hard en 1993 por Kou, Glover y Dhit al reducir el problema de clique a MDP.
+
+El presente artículo presenta un estudio sencillo de la aplicación de metaheurísticas para la resolución de este problema. Se realiza un estudio comparativo de las técnicas de Local Search (LS), Iterated Local Search (ILS), Tabu Search (TS), Genetic Algorithm (GA) y Scatter Search (SS) en las intancias del problema en los sets SOM, GKD y MDG de MDPLIB de optsicom.es.
+
 \end{abstract}
 
 \section{Trabajos Previos}
@@ -52,14 +57,13 @@ Para casos de prueba de mayor tamaño, se destaca las búsquedas en Tabú. Un ej
 
 Cabe destacar también los estrategias GRASP desarrolladas por Silva et~\cite{silva}, donde se construye una solución parcial inicial y se mejora de forma iterativa; y la propuesta por Duarte y Martí~\cite{duarmar}, que parten de la heurística propuesta por Glover de C2 y D2, aplicándole su propia metodología GRASP.
 
-\section{Representación del Problema}
-En la implementación propuesta, se representan el problema con 3 vectores. Uno donde se almacenan todos los arcos, otro donde se almacena los nodos elegidos para la solución y otro donde se almacenan los elementos no elegidos. Se construye la solución inicial a partir de los elementos cuya media de distancia de los arcos sea mayor.
+\section{Representación de la solución}
+Para la representación de una solución del problema se utilizan dos alternativas. Para los algoritmos LS, ILS, TS y SS se optó por una representación compacta.
+Sea el conjunto de elementos de tamaño $n$ y la solución de tamaño $m$, se opta por representar la solución como un vector de tamaño $m$ donde cada componente contiene la etiqueta del elemento escogido. Para GA se utiliza una representación completa: un vector de tamaño $n$ donde cada componente está permanentemente asociada a un elemento del problema e indica si pertenece o no a la solución (i.e. un $x_i$ como en la descripción del problema).
 
-Siendo el vector S de M elementos la solución inicial, se toma el último elemento del vector y se intercambia aleatoriamente con alguno del vector de elementos no elegidos y se prueba si esta nueva solución es mejor que la que se tenía. De ser mejor, se actualiza el vector de solución y se continúa iterando.
+\section{Local Search}
 
-Después de probarse todas las combinaciones con esa posición, o de exceder un número determinado de iteraciones, se pasa a la siguiente vecindad que vendría siendo las posibilidades con penúltimo elemento del vector usando el mismo procedimiento, así hasta recorrer todo el vector, o alcanzar la cota máxima de iteraciones.
 
-\section{Algoritmo de Búsqueda Local}
 \begin{algorithm}
   \DontPrintSemicolon
   \vspace*{0.1cm}
@@ -99,6 +103,71 @@ Después de probarse todas las combinaciones con esa posición, o de exceder un 
     }
   }
 \end{algorithm}
+
+
+\section{Búsqueda ILS}
+En la implementación de la metaheurística de búsqueda local iterativa, a partir de una solución inicial, comienza un ciclo de donde se perturba la mejor solución, se mejora esa solución parcial y se comparan las soluciones. La perturbación consiste en intercambiar aleatoriamente \textit{k} nodos de la solución parcial por nodos no elegidos. El mejoramiento es realizar una búsqueda local a la solución obtenida por la perturbación. Luego se compara la solución parcial con la mejor solución obtenida, y se actualiza la segundar de ser mejor la solución parcial.
+
+Si transcurren \textit{h} ciclos sin que mejore la solución, se procede a aumentar la perturbación, aumentando en uno el \textit{k}. Este ciclo ocurre hasta que se cumpla un número máximo de iteraciones, o el valor \textit{k} de las perturbaciones supera el tamaño de la solución.
+
+%\section{Algoritmo de Búsqueda Local Iterativa}
+%\begin{algorithm}
+%  \DontPrintSemicolon
+%  \vspace*{0.1cm}
+%	$C \leftarrow$ conjunto nodos no escogidos\;
+%  $S \leftarrow$ conjunto de nodos de la solución inicial\;	//Solucion Parcial
+%	$BS \leftarrow$ S\;	//Mejor solucion
+%  $k \leftarrow$ PERTURBACION_INCIAL\;
+%	$m \leftarrow$ TAMAÑO_DE_SOLUCION\;
+%	$numIteraciones \leftarrow$ 0\;
+%	$intentosK \leftarrow$ 0\;
+%  \While{numIteraciones < MAX_ITERACIONES \land k < m}{
+%
+%		$elemEscogido \leftarrwo$ \emptyset$\;
+%		\for {i=0 hasta k}{
+%			$elemEntrando \leftarrow$ x aleatorio tal que, x \subset C, x \not\subset elemEscogido, x \not\subset S,\;
+%			$elemSalida \leftarrow$ x aleatorio tal que, x \not\subset C, x \not\subset elemEscogido, x \subset S,\;
+%			$elemEscogido \leftarrwo$ \cup elemEntrada \cup elemSalida\;
+%			$S \leftarrow (S - elemSalida) \cup elemEntrada\;
+%			$C \leftarrow (S - elemEntrada) \cup elemSalida\;
+%		}
+%		$S \leftarrow busquedaLocal(S)\;
+%		\If{$distancia(S) > distancia(BS)$}{
+%        $BS \leftarrow$ S\;
+%				$intentosK \leftarrow$ 0\;
+%      }
+%    \eIf{}{
+%			\If{$intentosK > MAX_INTENTOS_K}{
+%				$k \leftarrow$ k + 1\;
+%				$intentosK \leftarrow$ 0\;
+%      }
+%    	\eIf{}{
+%				$intentosK \leftarrow$ intentosK + 1\;
+%	    }
+%			$S \leftarrow$ BS\;
+%    }
+%		$numIteraciones \leftarrow$ numIteraciones+1\;
+%	}
+%
+%\end{algorithm}
+
+\section{Resultados}
+Para el estudio del desempeño de los algoriymos, se ejecuto 15 veces cada caso de preuba y se promediaron
+los datos obtenidos. Se consideran los casos de prueba GDK-c que consiten en puntos generados aleatorios y
+sus respectivas distancias euclidianas entre si, con una cantidad de nodos igual a 500 y una solución de tamaño 50.
+También se consideran 5 casos de SOM-b, con una cantidad de nodos entre 100 y 200, soluciones de tamaño 10 a 40, que consisten
+en arcos generados aleatoriamente, extraídos de una distribucion uniforme. Igualmente se usan los casos de MDG-a, que
+son arcos enteros entre 0 y 10 sacados aleatoriamente de una distribución uniforme, con problemas con 500 nodos y 50 de tamaño de soluciones, y sus 3 de sus versiones más grandes de 2000 nodos y 200 de tamaño de solución
+
+En general los resultados dados con ILS superan en calidad a los presentado solo con Búsquedad Local.
+Esto ocurre tanto con soluciones iniciales aleatorias como con soluciones iniciales con el procesamiento
+greedy antes descrito. Sin embargo su costo de tiempo es considerablemente mayor. En particular con los casos
+más grandes, MDG-a de 2000 nodos,ILS llega a tardar 10 minutos a diferencia d LS que tarda poco más de un segundo,
+con una diferencia de 2% de error relativo favorable a ILS. También se observa que los resultados dados
+por las corridas con la solución inicial greedy obtienen mejores resultados que con soluciones iniciales
+aleatorias.
+
+
 
 %---------------------------- Bibliography -------------------------------
 
