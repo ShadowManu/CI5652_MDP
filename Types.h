@@ -77,7 +77,7 @@ public:
     void initRandom();
 
     void solveByLocalSearch();
-    void solveByVNS();
+    void solveByILS();
     void solveByTabu();
     void solveByGenetic();
     

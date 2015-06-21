@@ -44,8 +44,8 @@ int main(int argc, char *argv[]) {
     // Choose metaheuristic strategy
     if (strcmp(argv[3],"localsearch") == 0)
         problem.solveByLocalSearch();
-    if (strcmp(argv[3],"vns") == 0)
-        problem.solveByVNS();
+    if (strcmp(argv[3],"ils") == 0)
+        problem.solveByILS();
     if (strcmp(argv[3],"tabu") == 0)
         problem.solveByTabu();
     if (strcmp(argv[3],"genetic") == 0)

@@ -118,7 +118,7 @@ void Problem::solveByLocalSearch() {
  * Solve a problem using the Basic VNS by Brimberg.
  * metaheuristic
  */
-void Problem::solveByVNS() {
+void Problem::solveByILS() {
     const int INIT_SIZE_PERTURBATION = (int) (nSolution * 0.1); // TODO CHECK
     const int MAX_ITERATIONS_VNS = 100000; // TODO CHECK
     const int MAX_TRIES_K = 10; // TODO CHECK
@@ -184,11 +184,12 @@ void Problem::solveByVNS() {
 void Problem::solveByTabu() {
 
     const int k = (int) (nSolution * 0.1); // TODO CHECK
-    const int MAX_ITERATIONS = 1000000; // TODO CHECK
-    const int MAX_TABUSIZE = nSolution * 0.30; // TODO CHECK
+    const int MAX_ITERATIONS = 10000; // TODO CHECK
+    const int MAX_TABUSIZE = nNodes; // TODO CHECK
     const int JAIL_TIME = 30;
 
     Solution workingSolution(solution);
+    int improve = 0;
 
     bool jail [nNodes][nNodes];
     for (int i=0; i<nNodes; i++){
@@ -205,7 +206,7 @@ void Problem::solveByTabu() {
         vector<long> elemToTake = chooseNRandomFromVector(workingSolution.notChosen, k);
         vector<long> elemToDrop = chooseNRandomFromVector(workingSolution.elements, k);
 
-        for (int i=0; i<elemToDrop.size(); i++){
+        for (int i=0; i<k; i++){
             if (jail[workingSolution.elements[elemToDrop[i]]][workingSolution.notChosen[elemToTake[i]]]){
 
                 jail[workingSolution.elements[elemToDrop[i]]][workingSolution.notChosen[elemToTake[i]]] = false;
@@ -215,15 +216,18 @@ void Problem::solveByTabu() {
             } else {
                 elemToTake[i] = rand() % workingSolution.notChosen.size();
                 i--;
-                //cout << "hola";
+
             }
 
         }
 
         if (workingSolution.value > solution.value) {
             solution = workingSolution;
+            improve = 0;
+        } else {
+            improve++;
         }
-        //cout << iter << "\n";
+
         if (iter > JAIL_TIME && freeChange.size() >= k) {
             for (int i=0; i<k; i++) {
                 jail[freeChange.front().first][freeChange.front().second] = true;
