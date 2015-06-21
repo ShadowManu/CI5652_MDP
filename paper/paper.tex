@@ -33,13 +33,11 @@
 
 
 \begin{abstract}
-El problema de máxima diversidad (Maximum Diversity Problem), consiste en elegir M elementos de un conjunto de N elementos tal que las suma de las distancias entre los elementos elegidos sea la máxima posible. Catalogado como un problema NP-Hard en 1993 por Kou, Glover y Dhit, el problema está formalmente estipulado bajo la siguiente fórmulas de función objetivo y restricción de tamaño:
+El problema de máxima diversidad (Maximum Diversity Problem), consiste en elegir M elementos de un conjunto de N elementos tal que las suma de las distancias entre los elementos elegidos sea la máxima posible. Catalogado como un problema NP-Hard en 1993 por Kou, Glover y Dhit, el problema está formalmente estipulado bajo la siguiente fórmulas de función objetivo a maximizar y restricción de tamaño:
 
 $$\sum_{i=1}^{n-1} \sum_{j=i+1}^n d_{ij}x_ix_j$$
 $$\sum_{i=1}^{n}x_i<m$$ 
-Donde $n$ es la cardinalidad de elementos del conjunto, $m$ la cantidad de elementos elegidos, $d_{ij}$ es la distancia entre el elemento $i$ y el elemento $j$, $x_i$ es una función booleana que toma el valor de 1 si el elemento $i$ fue elegido, 0 si no fue elegido.
-
-
+Donde $n$ es la cardinalidad de elementos del conjunto, $m$ la cantidad de elementos elegidos, $d_{ij}$ es la distancia entre el elemento $i$ y el elemento $j$, $x_i$ es una función booleana que toma el valor de 1 si el elemento $i$ fue elegido, 0 si no fue elegido. Estas definiciones son las utilizadas en menciones posteriores en caso de omitirse una definición en el momento.
  
 Las aplicaciones de este problema se pueden  encontrar en estudios genéticos, sistemas ecológicos, controles de inmigración, tratamientos médicos, entre otros. Ha sido un caso de estudio para la aplicación de heurísticas y metaheurísticas, particularmente para la búsqueda local. Fue catalogado como un problema NP-Hard en 1993 por Kou, Glover y Dhit al reducir el problema de clique a MDP.
 
@@ -61,8 +59,49 @@ Cabe destacar también los estrategias GRASP desarrolladas por Silva et~\cite{si
 Para la representación de una solución del problema se utilizan dos alternativas. Para los algoritmos LS, ILS, TS y SS se optó por una representación compacta.
 Sea el conjunto de elementos de tamaño $n$ y la solución de tamaño $m$, se opta por representar la solución como un vector de tamaño $m$ donde cada componente contiene la etiqueta del elemento escogido. Para GA se utiliza una representación completa: un vector de tamaño $n$ donde cada componente está permanentemente asociada a un elemento del problema e indica si pertenece o no a la solución (i.e. un $x_i$ como en la descripción del problema).
 
+\section{Solución Inicial}
+Dependiendo de la metaheurística a utilizar se usan métodos de construcción de las soluciones iniciales de forma diferente. La primera es la clásica solución aleatoria: se seleccionan los elementos que pertenecen a la solución al azar. La segunda sigue un principio de intuición que denominamos Potencial de un elemento definida de la siguiente forma:
+
+$$P(i)=\sum_{j=1}^{n}d_{ij}$$
+
+De manera informal, el Potencial de un elemento indica cuánto aporta a la función objetivo si se tomasen en cuenta todas las conexiones con todos los demás elementos. Por tanto, elegimos los primeros $m$ nodos que tengan mayor potencial. Definimos a esta estrategia como solución inicial greedy.
+
+En la mayoría de los problemas trabajados, las soluciones aleatorias rondan generalmente entre 50\% y 75\% del valor de las mejores soluciones encontradas en la librería (soluciones referencia), dependiendo del tamaño del problema, siendo las peores los de problemas más grandes. La solución greedy supera el 95\% y tiende a llegar tan alto como 98\% de la solución referencia.
+
+En la mayoría de los problemas se intenta utilizar la solución greedy sobre la aleatoria. Para LS, ILS y TS se utiliza greedy. Para las metaheurísticas poblacionales GA y SS, se inicia con soluciones aleatorias.
+
+\section{Local Search}
+hey
+\subsection{Inicio}
+hola
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 \section{Local Search}
 
+En la implementación de búsqueda local se decide por 
 
 \begin{algorithm}
   \DontPrintSemicolon
