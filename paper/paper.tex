@@ -72,7 +72,7 @@ De manera informal, el $Potencial$ de un elemento indica cuánto aporta a la fun
 
 En la mayoría de los problemas trabajados, las soluciones aleatorias rondan generalmente entre 50\% y 75\% del valor de las mejores soluciones encontradas en la librería (soluciones referencia), dependiendo del tamaño del problema, siendo las peores las de problemas más grandes. La solución greedy supera el 95\% y tiende a llegar tan alto como 98\% de la solución referencia.
 
-En la mayoría de los problemas se intenta utilizar la solución greedy sobre la aleatoria. Para LS, ILS y TS se utiliza greedy. Para las metaheurísticas poblacionales GA y SS, se inicia con soluciones aleatorias.
+En la mayoría de los problemas se intenta utilizar la solución greedy sobre la aleatoria. Para LS y ILS se utiliza greedy. Para las metaheurísticas poblacionales GA y SS, y la de trayectoria TS  se inicia con soluciones aleatorias.
 
 \section{Local Search (LS)}
 El primer algoritmo implementado consiste en Búsqueda Local. Durante la búsqueda, el objetivo es mejorar una solución existente modificando aquellos elementos que lleven la solución a acercarse a un óptimo (al menos de forma local).
@@ -228,10 +228,53 @@ Si transcurren \textit{h} ciclos sin que mejore la solución, se procede a aumen
 %\end{algorithm}
 
 \section{Scatter Search}
-Se realizó una implementación de Scatter Search con una población P de tamaño 100, y un conjunto de referencia de tamaño constante 10.
+Se realizó una implementación de Scatter Search con una población P de tamaño 100, y un conjunto de referencia de tamaño constante 10. Se realizan 5 ciclos del SS, que consiste en generar una población P, obtener el conjunto de referencia y comenzar un ciclo interno donde se combinan las soluciones del conjunto de referencia, se mejoran las soluciones, y se actualiza el conjunto de referencia, hasta que no se realicen cambios en una de las iteraciones, por lo que se guarda la mejor solución y se procede a la siguiente iteración.
 
-Se comienza generando la población inicial P de tamaño 100 aleatoriamente y mejorando las soluciones con un Local Search. De este, se eligen 10 elementos para el conjunto de referencia. Este conjunto de referencia consta de las 5 mejores soluciones del P inicial, y las 5 soluciones más distintas a las 5 primeras. A partir de este conjunto de referencia inicial, comienzan a realizarse combinaciones entre 2 soluciones, tomando una de las primeras 5 soluciones del conjunto y 5 de las restantes. Las combinaciones consisten en tomar aleatoriamente elementos suficientes de entre las dos soluciones para generar una nueva, con un mejoramiento posterior con Local Search. Si esta solución nueva es mejor que alguna de las soluciones del conjunto de referencia, se introduce al conjunto, eliminando la peor solución de este para mantener el tamaño. Esto se realiza hasta que el conjunto de referencia no cambie en un ciclo de combinaciones. Luego, se guarda la mejor solución del conjunto de referencia y se procede a generar un nuevo P para a su vez obtener un nuevo conjunto de referencia, repitiendose el ciclo descrito anteriormente. Esto se realiza 5 veces.
+\subsection{Conjunto de Referencia de SS}
+Tomando una población inicial P de tamaño 100 con soluciones aleatorias y mejorando las soluciones con un Local Search, el conjunto de referencia consta, incialmente, de las 5 mejores soluciones de esta población P, y 5 soluciones más diferentes para cada una de las primeras 5 mencionadas, ordenadas las soluciones de mejor a peor.
 
+\subsection{Combinaciones de SS}
+Las combinaciones son entre 2 soluciones, combinando las primeras 5 soluciones del conjunto con las otras 5 restantes. Las combinaciones consisten en tomar aleatoriamente elementos suficientes de entre las dos soluciones para generar una nueva, con un mejoramiento posterior usando Local Search.
+
+\subsection{Actualización del Conjunto de Referencia de SS}
+Si una solución generada en las combinaciones es mejor que alguna de las soluciones del conjunto de referencia, se introduce al conjunto, eliminando la peor solución del conjunto para mantener el tamaño, asegurando que se mantenga el orden de mejor a peor slución.
+
+\subsection{Algoritmo de SS}
+\begin{algorithm}
+\DontPrintSemicolon
+$S \leftarrow$ Mejor solución obtenida\;
+\Begin{
+	\For{$i = 1 \to $ 5}{
+		$P \leftarrow$ Poblacion Inicial Aleatoria\;
+		Improvement(\textit{P})\;
+		$refSet \leftarrow$ 5 mejores Soluciones de P\;
+		
+		\ForEach{$p \in P \wedge r \in refSet$}{
+			$refSet \leftarrow refSet\cup$ Max(Diferencia(r,p))\;
+		}
+			
+		\For{Cambia}{
+			$Cambia \leftarrow$ falso\;
+			$C \leftarrow$ combinaciones a partir de refSet\;
+			\ForEach{$c \in C$}{
+				Improvement(c)\;
+				\ForEach{$r \in refSet$}{
+					\If{fitness($c$) $>$ fitness($r$)}{
+					
+						$refSet \leftarrow refSet\cup c$\;
+						$refSet \leftarrow refSet$ - Peor(refSet)\;
+						$Cambia \leftarrow$ verdadero\;
+					}
+				}
+			}		
+		}
+		
+		\If{fitness($MejorSolucion(refSet)$) $>$ fitness($S$)}{
+			$S \leftarrow$ MejorSolucion(refSet)\;
+		}
+	}
+}
+\end{algorithm}
 
 \section{Resultados}
 Para el estudio del desempeño de los algoriymos, se ejecuto 15 veces cada caso de preuba y se promediaron
