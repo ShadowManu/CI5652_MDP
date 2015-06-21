@@ -7,6 +7,7 @@
 \usepackage{paralist}
 \usepackage[ruled,vlined,linesnumbered]{algorithm2e}
 \usepackage{graphicx}
+\usepackage[labelfont=bf,textfont=it,small]{caption}
 
 \setlength{\parskip}{0.5em}
 
@@ -100,7 +101,6 @@ $P \leftarrow$ elementos del problema\;
 			$S' \leftarrow$ S con $S_i$ reemplazado por u\;
 			\If{$valor(S') > valor(S)$}{
 				$S \leftarrow S'$\;
-				Marcar $u$ como mejor candidato
 			}
 			\If{pasan MAX\_REPEATS iteraciones sin marcar $u$}{
 				break\;
@@ -110,76 +110,33 @@ $P \leftarrow$ elementos del problema\;
 }
 \end{algorithm}
 
-Para $NH\_SIZE$ y $MAX\_REPEATS$ se entonaron los valores de $\frac{|P|-|S|}{5}$ y $30$ respectivamente.
+Para NH\_SIZE y MAX\_REPEATS se entonaron los valores de $\frac{|P|-|S|}{5}$ y $30$ respectivamente.
 
-\begin{algorithm}
-  \DontPrintSemicolon
-  \vspace*{0.1cm}
-  $V \leftarrow$ vector de arcos\;
-  $S \leftarrow$ vector solución inicial\;
-  $C \leftarrow$ vector de elementos no elegidos\;
-  $IS \leftarrow \emptyset$ // conjunto de cambios probados\;
-  $Itera \leftarrow true$ // cota de salida\;
-  $localIter \leftarrow 0$\;
-  $totalIter \leftarrow 0$\;
-  $pivote \leftarrow |S|-1$\;
-  $distanciaActual = Distancia(S)$\;
-  \While{true}{
-    \eIf{$localIter < MAX\_LOCAL\_LITER \land localIter < |Nodos| - |S|$}{
-      $NodoAleatorio \leftarrow Rand(C)$\;
-      \If{$NodoAleatorio \in IS$}{
-        \textbf{continue}\;
-      }
-      IS $\leftarrow IS \cup \{NodoAleatorio\}$\;
-      $respaldo \leftarrow pivote$\;
-      $pivote \leftarrow nodoAleatorio$\;
-      \eIf{$Distancia(S) > distanciaActual$}{
-        $DistanciaActual = Distancia(S)$\;
-        $C = C - nodoAleatorio + respaldo$\;
-      }{
-        $pivote = Respaldo$\;
-      }
-      $localIter++$\;
-      $totalIter++$\;
-    }{
-      $IS \leftarrow \emptyset$\;
-      $localIter = 0$\;
-      $pivote--$\;
-    }
-    \If{$totalIter > MAX\_ITER \lor pivote < 0$}{
-      \KwRet{$distanciaActual$}\;
-    }
-  }
-\end{algorithm}
+\subsection{Resultados de Local Search}
+La aplicación de LS a una solución dada, en general logra mejorar la solución y acercarla hacia el óptimo (en general, local). Quizá uno de los resultados más importantes en una revisión individual de LS, es cómo se comporta con diferentes soluciones. En la figura ~\ref{fig:localsearch-solution-randomgreedy}, se hacen 15 pruebas sobre 5 problemas del set mediano iniciando con una solución aleatoria (r) y una solución greedy (g).
+El comportamiento observado es el esperado: local search mejora localmente una solución dada; con una solución greedy se obtienen mejores resultados pero sucesivas aplicaciones de LS a una solución arbitraria podrían igualmente obtenerlos.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-\begin{figure}[p]
+\begin{figure*}[]
 	\setlength\fboxsep{0pt}
 	\setlength\fboxrule{0.5pt}
-	\fbox{\includegraphics[width=\linewidth]{scatter-solution-medium}}
-	\caption{Comparación de soluciones de SS en problemas de tamaño mediano.}
-	\label{fig:ss_s_m}
-	\label{fig:ss_s_m}
-\end{figure}
+	\fbox{\includegraphics[width=\textwidth]{localsearch-solution-randomgreedy}}
+	\caption{Comparación de soluciones de LS utilizando soluciones random y greedy en problemas de tamaño mediano.}
+	\label{fig:localsearch-solution-randomgreedy}
+\end{figure*}
 
-\section{Búsqueda ILS}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% All is good down to this line
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\begin{figure}[ht]
+%	\setlength\fboxsep{0pt}
+%	\setlength\fboxrule{0.5pt}
+%	\fbox{\includegraphics[width=\linewidth]{scatter-solution-medium}}
+%	\caption{Comparación de soluciones de SS en problemas de tamaño mediano.}
+%	\label{fig:ss_s_m}
+%\end{figure}
+
+\section{Iterated Local Search}
 En la implementación de la metaheurística de búsqueda local iterativa, a partir de una solución inicial, comienza un ciclo de donde se perturba la mejor solución, se mejora esa solución parcial y se comparan las soluciones. La perturbación consiste en intercambiar aleatoriamente \textit{k} nodos de la solución parcial por nodos no elegidos. El mejoramiento es realizar una búsqueda local a la solución obtenida por la perturbación. Luego se compara la solución parcial con la mejor solución obtenida, y se actualiza la segundar de ser mejor la solución parcial.
 
 Si transcurren \textit{h} ciclos sin que mejore la solución, se procede a aumentar la perturbación, aumentando en uno el \textit{k}. Este ciclo ocurre hasta que se cumpla un número máximo de iteraciones, o el valor \textit{k} de las perturbaciones supera el tamaño de la solución.
