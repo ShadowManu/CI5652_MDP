@@ -225,6 +225,12 @@ Si transcurren \textit{h} ciclos sin que mejore la solución, se procede a aumen
 %
 %\end{algorithm}
 
+\section{Scatter Search}
+Se realizó una implementación de Scatter Search con una población P de tamaño 100, y un conjunto de referencia de tamaño constante 10.
+
+Se comienza generando la población inicial P de tamaño 100 aleatoriamente y mejorando las soluciones con un Local Search. De este, se eligen 10 elementos para el conjunto de referencia. Este conjunto de referencia consta de las 5 mejores soluciones del P inicial, y las 5 soluciones más distintas a las 5 primeras. A partir de este conjunto de referencia inicial, comienzan a realizarse combinaciones entre 2 soluciones, tomando una de las primeras 5 soluciones del conjunto y 5 de las restantes. Las combinaciones consisten en tomar aleatoriamente elementos suficientes de entre las dos soluciones para generar una nueva, con un mejoramiento posterior con Local Search. Si esta solución nueva es mejor que alguna de las soluciones del conjunto de referencia, se introduce al conjunto, eliminando la peor solución de este para mantener el tamaño. Esto se realiza hasta que el conjunto de referencia no cambie en un ciclo de combinaciones. Luego, se guarda la mejor solución del conjunto de referencia y se procede a generar un nuevo P para a su vez obtener un nuevo conjunto de referencia, repitiendose el ciclo descrito anteriormente. Esto se realiza 5 veces.
+
+
 \section{Resultados}
 Para el estudio del desempeño de los algoriymos, se ejecuto 15 veces cada caso de preuba y se promediaron
 los datos obtenidos. Se consideran los casos de prueba GDK-c que consiten en puntos generados aleatorios y
