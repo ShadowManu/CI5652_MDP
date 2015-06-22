@@ -8,6 +8,7 @@
 \usepackage[ruled,vlined,linesnumbered]{algorithm2e}
 \usepackage{graphicx}
 \usepackage[labelfont=bf,textfont=it,small]{caption}
+\usepackage[section]{placeins}
 
 \setlength{\parskip}{0.5em}
 
@@ -52,7 +53,7 @@ El presente artículo presenta un estudio sencillo de la aplicación de metaheur
 \section{Trabajos Previos}
 El problema de máxima diversidad ha sido estudiado aplicando múltiples heurísticas y metahaurísticas. En general todas las heurísticas estudiadas presentan buenos resultados, sin embargo, se destacan las de búsqueda local al poseer resultados de mejor calidad para la mayor parte de los casos de prueba.
 
-Se destaca en particular el Basic VNS por Brimberg~\cite{vnsbrimberg}. Este consiste en una estructura de datos eficiente que representa los conjuntos LocalSearchde datos actualizados, del cual genera aleatoriamente una solución parcial a la cual le aplica una búsqueda local intercambiando los elementos de su solución con los elementos no incluidos.
+Se destaca en particular el Basic VNS por Brimberg~\cite{vnsbrimberg}. Este consiste en una estructura de datos eficiente que representa los conjuntos de datos actualizados, del cual genera aleatoriamente una solución parcial a la cual le aplica una búsqueda local intercambiando los elementos de su solución con los elementos no incluidos.
 En un segundo lugar, se encuentra el VNS implementado por Aringhieri y Cordone~\cite{vnsarincor}, el cual consiste en una construcción de una solución con un método greedy y un posterior procesamiento cambiando k elementos de la solución y aplicando una búsqueda tabú simple sobre esta.
 
 Para casos de prueba de mayor tamaño, se destaca las búsquedas en Tabú. Un ejemplo de esta es la presentada por Palubeckis~\cite{palubeckis}, una búsqueda Tabú iterativa que alterna entre búsqueda tabú y técnicas de perturbación. Cuando la búsqueda Tabú encuentra un resultado mejor al inicial, utiliza una búsqueda local a la nueva solución. Su método de perturbación es una selección de elementos aleatorios del conjunto para viajar por el espacio de soluciones. Para casos pequeños este método se desempeña bien, pero no es el mejor.
@@ -72,7 +73,7 @@ De manera informal, el $Potencial$ de un elemento indica cuánto aporta a la fun
 
 En la mayoría de los problemas trabajados, las soluciones aleatorias rondan generalmente entre 50\% y 75\% del valor de las mejores soluciones encontradas en la librería (soluciones referencia), dependiendo del tamaño del problema, siendo las peores las de problemas más grandes. La solución greedy supera el 95\% y tiende a llegar tan alto como 98\% de la solución referencia.
 
-En la mayoría de los problemas se intenta utilizar la solución greedy sobre la aleatoria. Para LS y ILS se utiliza greedy. Para las metaheurísticas poblacionales GA y SS, y la de trayectoria TS  se inicia con soluciones aleatorias.
+En la mayoría de los problemas se intenta utilizar la solución greedy sobre la aleatoria. Para LS, ILS y TS se utiliza greedy. Para las metaheurísticas poblacionales GA y SS, se inicia con soluciones aleatorias.
 
 \section{Local Search (LS)}
 El primer algoritmo implementado consiste en Búsqueda Local. Durante la búsqueda, el objetivo es mejorar una solución existente modificando aquellos elementos que lleven la solución a acercarse a un óptimo (al menos de forma local).
@@ -125,6 +126,49 @@ El comportamiento observado es el esperado: local search mejora localmente una s
 	\label{fig:localsearch-solution-randomgreedy}
 \end{figure*}
 
+\section{Iterated Local Search (ILS)}
+En la búsqueda ILS, se intenta resolver el problema principal que aqueja a la búsqueda local: puede quedarse estancado en soluciones óptimas locales, sin llegar al óptimo global. Esto puede resolverse aplicando búsqueda local sobre diferentes soluciones iniciales, mas conservando de cierta forma aquello que las búsquedas anteriores pudieran aportar para hallar la solución óptima.
+
+\subsection{Operador de perturbación de ILS}
+Para cambiar las soluciones, realizamos una perturbación en base a un tamaño $k$, en la que se eligen $k$ elementos escogidos en la solución y se reemplazan con elementos no escogidos en la solución actual.
+
+\subsection{Condiciones de control de ILS}
+En la implementación existen 3 condiciones que controlan la forma en que se realizan las búsquedas:
+\begin{itemize} \itemsep5pt
+	\item Intentos de $k$: cuantas busquedas con el mismo tamaño $k$ se permiten sin mejora antes de incrementarlo.
+	\item Incremento de $k$: en cuanto se incrementa el tamaño de la perturbación y el límite de este incremento.
+	\item Máximo de Iteraciones: cuantas iteraciones totales se permiten realizar durante la ejecución completa del algoritmo.
+\end{itemize}
+
+\subsection{Algoritmo de ILS}
+\begin{algorithm}[h!]
+\DontPrintSemicolon
+$S \leftarrow$ Solucion del problema\;
+$k \leftarrow$ tamaño de la perturbacion\;
+\Begin{
+	$S \leftarrow$ SolucionInicial()\;
+	$k \leftarrow INIT\_SIZE$\;
+	$k\_tries \leftarrow 0$\;
+	\For{$i = 1 \to$ MAX\_ITERATIONS}{
+		$S' \leftarrow$ shake($S$,$k$)\;
+		$S'' \leftarrow$ localSearch($S'$)\;
+		\If{value($S''$) $>$ value($S$))}{
+			$S \leftarrow S''$\;
+			$k \leftarrow INIT\_SIZE$\;
+			$continue$\;
+		}
+		increment $k\_tries$\;
+		\If{$k\_tries > MAX\_K\_TRIES$}{
+			increment $k$\;
+			$k\_tries \leftarrow 0$\;
+			$continue$\;
+		}
+		\If{$k > |S|$}{
+			$break$\;
+		}
+	}	
+}
+\end{algorithm}
 
 \section{Tabu Search}
 La versión del algoritmo Tabu Search implementado es sencillo. Consiste en, a partir de una solución inicial aleatoria, cambiar el 10\% de los nodos de la solución aleatoriamente por nodos no elegidos por la solución que tampoco sean tabu, sin criterio de aspiración para los elementos tabu. Si estos cambios mejoran la solución, los intercambios de nodos realizados son marcados como tabu por 30 iteraciones, y mejor solución es actualizada~\cite{fgtabu}.
@@ -169,7 +213,6 @@ $Q \leftarrow \emptyset$ //Cola de pares combinaciones a liberar\;
 }
 \end{algorithm}
 
-
 \section{Genetic Algorithm (GA)}
 El algoritmo genético consiste en una simulación genética de las soluciones, donde se posee una población donde cada individuo representa una instancia de solución y se aplican simulaciones de selección, cruce y mutación genéticas a modo de imitación del proceso natural de los seres vivos. Se implementó un algoritmo genético generacional para la resolución de este problema: las nuevas poblaciones reemplazan a las anteriores, manteniendo el mismo tamaño en la población durante todo el algoritmo.
 
@@ -204,7 +247,7 @@ $S_i \leftarrow$ Solucion $i$ de un conjunto de soluciones\;
 				replace($S'_i$,$S_i$,P)\;
 			}
 			\If{fitness($S'_i+1$) $>$ fitness($S_i+1$)}{
-				replace($S'_i+1$,$S_i+1$,P)\;
+				replace($S'_{i+1}$,$S_{i+1}$,P)\;
 			}
 		}
 		Mutacion(P,MUTATION\_SIZE);
@@ -213,64 +256,6 @@ $S_i \leftarrow$ Solucion $i$ de un conjunto de soluciones\;
 \end{algorithm}
 
 Para los valores de POP\_SIZE, N\_GENERATIONS y MAX\_REPEATS se entonaron los valores de $100$, $200$ y $4$ respectivamente.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% All is good down to this line
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%\begin{figure}[ht]
-%	\setlength\fboxsep{0pt}
-%	\setlength\fboxrule{0.5pt}
-%	\fbox{\includegraphics[width=\linewidth]{scatter-solution-medium}}
-%	\caption{Comparación de soluciones de SS en problemas de tamaño mediano.}
-%	\label{fig:ss_s_m}
-%\end{figure}
-
-\section{Iterated Local Search}
-En la implementación de la metaheurística de búsqueda local iterativa, a partir de una solución inicial, comienza un ciclo de donde se perturba la mejor solución, se mejora esa solución parcial y se comparan las soluciones. La perturbación consiste en intercambiar aleatoriamente \textit{k} nodos de la solución parcial por nodos no elegidos. El mejoramiento es realizar una búsqueda local a la solución obtenida por la perturbación. Luego se compara la solución parcial con la mejor solución obtenida, y se actualiza la segundar de ser mejor la solución parcial.
-
-Si transcurren \textit{h} ciclos sin que mejore la solución, se procede a aumentar la perturbación, aumentando en uno el \textit{k}. Este ciclo ocurre hasta que se cumpla un número máximo de iteraciones, o el valor \textit{k} de las perturbaciones supera el tamaño de la solución.
-
-%\section{Algoritmo de Búsqueda Local Iterativa}
-%\begin{algorithm}
-%  \DontPrintSemicolon
-%  \vspace*{0.1cm}
-%	$C \leftarrow$ conjunto nodos no escogidos\;
-%  $S \leftarrow$ conjunto de nodos de la solución inicial\;	//Solucion Parcial
-%	$BS \leftarrow$ S\;	//Mejor solucion
-%  $k \leftarrow$ PERTURBACION_INCIAL\;
-%	$m \leftarrow$ TAMAÑO_DE_SOLUCION\;
-%	$numIteraciones \leftarrow$ 0\;
-%	$intentosK \leftarrow$ 0\;
-%  \While{numIteraciones < MAX_ITERACIONES \land k < m}{
-%
-%		$elemEscogido \leftarrwo$ \emptyset$\;
-%		\for {i=0 hasta k}{
-%			$elemEntrando \leftarrow$ x aleatorio tal que, x \subset C, x \not\subset elemEscogido, x \not\subset S,\;
-%			$elemSalida \leftarrow$ x aleatorio tal que, x \not\subset C, x \not\subset elemEscogido, x \subset S,\;
-%			$elemEscogido \leftarrwo$ \cup elemEntrada \cup elemSalida\;
-%			$S \leftarrow (S - elemSalida) \cup elemEntrada\;
-%			$C \leftarrow (S - elemEntrada) \cup elemSalida\;
-%		}
-%		$S \leftarrow busquedaLocal(S)\;
-%		\If{$distancia(S) > distancia(BS)$}{
-%        $BS \leftarrow$ S\;
-%				$intentosK \leftarrow$ 0\;
-%      }
-%    \eIf{}{
-%			\If{$intentosK > MAX_INTENTOS_K}{
-%				$k \leftarrow$ k + 1\;
-%				$intentosK \leftarrow$ 0\;
-%      }
-%    	\eIf{}{
-%				$intentosK \leftarrow$ intentosK + 1\;
-%	    }
-%			$S \leftarrow$ BS\;
-%    }
-%		$numIteraciones \leftarrow$ numIteraciones+1\;
-%	}
-%
-%\end{algorithm}
 
 \section{Scatter Search}
 Se realizó una implementación de Scatter Search con una población P de tamaño 100, y un conjunto de referencia de tamaño constante 10. Se realizan 5 ciclos del SS, que consiste en generar una población P, obtener el conjunto de referencia y comenzar un ciclo interno donde se combinan las soluciones del conjunto de referencia, se mejoran las soluciones, y se actualiza el conjunto de referencia, hasta que no se realicen cambios en una de las iteraciones, por lo que se guarda la mejor solución y se procede a la siguiente iteración~\cite{ssmarti}.
@@ -337,7 +322,6 @@ más grandes, MDG-a de 2000 nodos,ILS llega a tardar 10 minutos a diferencia d L
 con una diferencia de 2% de error relativo favorable a ILS. También se observa que los resultados dados
 por las corridas con la solución inicial greedy obtienen mejores resultados que con soluciones iniciales
 aleatorias.
-
 
 
 %---------------------------- Bibliography -------------------------------
