@@ -125,6 +125,51 @@ El comportamiento observado es el esperado: local search mejora localmente una s
 	\label{fig:localsearch-solution-randomgreedy}
 \end{figure*}
 
+
+\section{Tabu Search}
+La versión del algoritmo Tabu Search implementado es sencillo. Consiste en, a partir de una solución inicial aleatoria, cambiar el 10\% de los nodos de la solución aleatoriamente por nodos no elegidos por la solución que tampoco sean tabu, sin criterio de aspiración para los elementos tabu. Si estos cambios mejoran la solución, los intercambios de nodos realizados son marcados como tabu por 30 iteraciones, y mejor solución es actualizada~\cite{fgtabu}.
+
+\subsection{Algoritmo Tabu}
+\begin{algorithm}
+\DontPrintSemicolon
+$Bs\leftarrow$ Mejor Solución\;
+$S \leftarrow$ Solucion inicial Aleatoria\;
+$k \leftarrow$ |S|*0.1\;
+$JailTime \leftarrow$ 30 //Tiempo de combinaciones siendo Tabu\;
+$TabuList[|Nodes|][|Nodes|] \leftarrow$ Matriz de Booleanos de Cambios inicializado todas las casillas en Verdadero\;
+$Q \leftarrow \emptyset$ //Cola de pares combinaciones a liberar\;
+\Begin{
+	$Bs \leftarrow S$\;
+	\For{$i = 1 \to  MAX\_ITERATION$}{
+		$D \leftarrow$ k nodos aleatorios en S\;
+		$T \leftarrow$ k nodos aleatorios fuera de S\;
+		\For{$j=0 \to k$}{
+			\If{$TabuList[D[j]][T[j]]$}{
+				$TabuList[D[j]][T[j]] \leftarrow Falso$\;
+				Q.push((D[j],T[j]))\;
+				$S \leftarrow (S - D[j]) \cup T[j]$\;
+			}
+			\Else {
+				$T[k] \leftarrow$ nodo aleatorio fuera de S\;
+				$j \leftarrow j-1$\;
+			}
+		}
+		
+		\If{fitness($S$) $>$ fitness($Bs$)}{
+			$Bs \leftarrow S$\;
+		}
+		
+		\If{$i > JailTime$)}{
+			\For{$l=0 \to k$}{
+				$TabuList[Q.top().first][Q.top().second] \leftarrow Verdadero$\;
+				Q.pop()\;
+			}
+		}
+	}
+}
+\end{algorithm}
+
+
 \section{Genetic Algorithm (GA)}
 El algoritmo genético consiste en una simulación genética de las soluciones, donde se posee una población donde cada individuo representa una instancia de solución y se aplican simulaciones de selección, cruce y mutación genéticas a modo de imitación del proceso natural de los seres vivos. Se implementó un algoritmo genético generacional para la resolución de este problema: las nuevas poblaciones reemplazan a las anteriores, manteniendo el mismo tamaño en la población durante todo el algoritmo.
 
@@ -228,7 +273,7 @@ Si transcurren \textit{h} ciclos sin que mejore la solución, se procede a aumen
 %\end{algorithm}
 
 \section{Scatter Search}
-Se realizó una implementación de Scatter Search con una población P de tamaño 100, y un conjunto de referencia de tamaño constante 10. Se realizan 5 ciclos del SS, que consiste en generar una población P, obtener el conjunto de referencia y comenzar un ciclo interno donde se combinan las soluciones del conjunto de referencia, se mejoran las soluciones, y se actualiza el conjunto de referencia, hasta que no se realicen cambios en una de las iteraciones, por lo que se guarda la mejor solución y se procede a la siguiente iteración.
+Se realizó una implementación de Scatter Search con una población P de tamaño 100, y un conjunto de referencia de tamaño constante 10. Se realizan 5 ciclos del SS, que consiste en generar una población P, obtener el conjunto de referencia y comenzar un ciclo interno donde se combinan las soluciones del conjunto de referencia, se mejoran las soluciones, y se actualiza el conjunto de referencia, hasta que no se realicen cambios en una de las iteraciones, por lo que se guarda la mejor solución y se procede a la siguiente iteración~\cite{ssmarti}.
 
 \subsection{Conjunto de Referencia de SS}
 Tomando una población inicial P de tamaño 100 con soluciones aleatorias y mejorando las soluciones con un Local Search, el conjunto de referencia consta, incialmente, de las 5 mejores soluciones de esta población P, y 5 soluciones más diferentes para cada una de las primeras 5 mencionadas, ordenadas las soluciones de mejor a peor.
@@ -240,6 +285,7 @@ Las combinaciones son entre 2 soluciones, combinando las primeras 5 soluciones d
 Si una solución generada en las combinaciones es mejor que alguna de las soluciones del conjunto de referencia, se introduce al conjunto, eliminando la peor solución del conjunto para mantener el tamaño, asegurando que se mantenga el orden de mejor a peor slución.
 
 \subsection{Algoritmo de SS}
+
 \begin{algorithm}
 \DontPrintSemicolon
 $S \leftarrow$ Mejor solución obtenida\;
@@ -328,7 +374,16 @@ G. Palubeckis.
 \newblock Iterated tabu search for the maximum diversity problem.
 \newblock {\em Applied Mathematics and Computation}, 189:371383, 2007.
 
+\bibitem{ssmarti}
+R. Martí, M. Laguna.
+\newblock Tabu Search.
+\newblock {\em Departamento de Estadística e Investigación Operativa,
+Universitat de València}.
 
+\bibitem{fgtabu}
+F. Glover, B. Melián.
+\newblock Scatter Search: Diseño Básico y Estrategias Avanzadas.
+\newblock {\em Inteligencia Artificial, Revista Iberoamericana de Inteligencia Artificial. No.19}, 2003, pp. 29-48.
 
 
 \end{thebibliography}

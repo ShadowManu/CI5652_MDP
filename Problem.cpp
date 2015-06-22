@@ -185,17 +185,14 @@ void Problem::solveByTabu() {
 
     const int k = (int) (nSolution * 0.1); // TODO CHECK
     const int MAX_ITERATIONS = 10000; // TODO CHECK
-    const int MAX_TABUSIZE = nNodes; // TODO CHECK
     const int JAIL_TIME = 30;
 
     Solution workingSolution(solution);
-    int improve = 0;
 
     bool jail [nNodes][nNodes];
     for (int i=0; i<nNodes; i++){
         for (int j=0; j<nNodes; j++){
-            jail[i][j] = true;
-
+            jail[i][j] = true;  
         }
     }
 
@@ -223,9 +220,6 @@ void Problem::solveByTabu() {
 
         if (workingSolution.value > solution.value) {
             solution = workingSolution;
-            improve = 0;
-        } else {
-            improve++;
         }
 
         if (iter > JAIL_TIME && freeChange.size() >= k) {
