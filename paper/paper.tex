@@ -89,7 +89,7 @@ La implementación de LS esta basada en el uso de $k\text{--}opt$, con 4 caracte
 \subsection{Algoritmo de Local Search}
 El algoritmo utilizado es equivalente al aquí mostrado, abstrayendo las particularidades de implementación y optimización del algoritmo. Esto aplica a todos los algoritmos mostrados en el presente documento.
 
-\begin{algorithm}
+\begin{algorithm}[h!]
 \DontPrintSemicolon
 $S \leftarrow$ Solucion del problema\;
 $S_i \leftarrow$ elemento $i$ de la solucion\;
@@ -174,7 +174,7 @@ $k \leftarrow$ tamaño de la perturbacion\;
 La versión del algoritmo Tabu Search implementado es sencillo. Consiste en, a partir de una solución inicial aleatoria, cambiar el 10\% de los nodos de la solución aleatoriamente por nodos no elegidos por la solución que tampoco sean tabu, sin criterio de aspiración para los elementos tabu. Si estos cambios mejoran la solución, los intercambios de nodos realizados son marcados como tabu por 30 iteraciones, y mejor solución es actualizada~\cite{fgtabu}.
 
 \subsection{Algoritmo Tabu}
-\begin{algorithm}
+\begin{algorithm}[h!]
 \DontPrintSemicolon
 $Bs\leftarrow$ Mejor Solución\;
 $S \leftarrow$ Solucion inicial Aleatoria\;
@@ -232,7 +232,7 @@ Dadas las características del problema El operador de cruce implementado es un 
 Utilizamos un operador de mutación bastante simple y débil: se intercambia un elemento presente en la solución por uno que no este presente en la solución. Sin embargo, la mutación se usa con una muy alta probabilidad: al final de cada generación, 1 de cada MUTATION\_SIZE elementos (seleccionados al azar) son mutados. Esta alta probabilidad de mutación resultó en mejores resultados para GA en los problemas medianos.
 
 \subsection{Algoritmo de GA}
-\begin{algorithm}
+\begin{algorithm}[h!]
 \DontPrintSemicolon
 $P \leftarrow$ Poblacion de invididuos\;
 $C \leftarrow$ Individuos Elegidos\;
@@ -271,7 +271,7 @@ Si una solución generada en las combinaciones es mejor que alguna de las soluci
 
 \subsection{Algoritmo de SS}
 
-\begin{algorithm}
+\begin{algorithm}[h!]
 \DontPrintSemicolon
 $S \leftarrow$ Mejor solución obtenida\;
 \Begin{
@@ -308,21 +308,23 @@ $S \leftarrow$ Mejor solución obtenida\;
 \end{algorithm}
 
 \section{Resultados}
-Para el estudio del desempeño de los algoriymos, se ejecuto 15 veces cada caso de preuba y se promediaron
-los datos obtenidos. Se consideran los casos de prueba GDK-c que consiten en puntos generados aleatorios y
-sus respectivas distancias euclidianas entre si, con una cantidad de nodos igual a 500 y una solución de tamaño 50.
-También se consideran 5 casos de SOM-b, con una cantidad de nodos entre 100 y 200, soluciones de tamaño 10 a 40, que consisten
-en arcos generados aleatoriamente, extraídos de una distribucion uniforme. Igualmente se usan los casos de MDG-a, que
-son arcos enteros entre 0 y 10 sacados aleatoriamente de una distribución uniforme, con problemas con 500 nodos y 50 de tamaño de soluciones, y sus 3 de sus versiones más grandes de 2000 nodos y 200 de tamaño de solución
 
-En general los resultados dados con ILS superan en calidad a los presentado solo con Búsquedad Local.
-Esto ocurre tanto con soluciones iniciales aleatorias como con soluciones iniciales con el procesamiento
-greedy antes descrito. Sin embargo su costo de tiempo es considerablemente mayor. En particular con los casos
-más grandes, MDG-a de 2000 nodos,ILS llega a tardar 10 minutos a diferencia d LS que tarda poco más de un segundo,
-con una diferencia de 2% de error relativo favorable a ILS. También se observa que los resultados dados
-por las corridas con la solución inicial greedy obtienen mejores resultados que con soluciones iniciales
-aleatorias.
+\subsection{Computador de Pruebas}
+Las pruebas fueron realizas bajo un equipo con las siguientes propiedades:
+\begin{itemize} \itemsep0pt
+	\item Sistema Operativo: Ubuntu 15.04 de 64 bits.
+	\item Kernel de SO: 3.19.0-21
+	\item Procesador: Intel Core i7-4700MQ
+	\item RAM: 8 GB RAM DDR3
+\end{itemize}
 
+\subsection{Casos de Prueba}
+Para las pruebas se utilizaron los casos de prueba de la librería MDPLIB:
+\begin{itemize}
+	\item SOM-b: 5 problemas de $n$ entre 100 y 200 y $m$ entre 10 y 40.
+	\item GKD-c: 20 problemas de $n$ 500 y $m$ 50.
+	\item MDG-b/c: 5 problemas de $n$ entre 2000 y 300 y $m$ entre 200 y 600.
+\end{itemize}
 
 %---------------------------- Bibliography -------------------------------
 
