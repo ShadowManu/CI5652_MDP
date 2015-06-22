@@ -35,20 +35,19 @@
 \begin{document}
 \thispagestyle{empty}
 \maketitle
+\
 
+\section{Introducción}
+El presente artículo presenta un estudio sencillo de la aplicación de metaheurísticas para la resolución del problema de diversidad máxima(Maximun Diversity Problem, MDP). Se realiza un estudio comparativo de las técnicas de Local Search (LS), Iterated Local Search (ILS), Tabu Search (TS), Genetic Algorithm (GA) y Scatter Search (SS) en las intancias del problema en los sets SOM, GKD y MDG de MDPLIB de optsicom.es. Se le dedica a cada metaheurística una sección con su descripción y pseudocódigo correspondiente.
 
-\begin{abstract}
+El estudio de nuevas formas de solucionar este problema, así como identificar aquellas técnicas que puedan dar indicios a nuevas investigaciones en el área son de importancia, dada las aplicaciones que tienen las soluciones a la ingenieŕia génetica, el diseño de sistemas ecológicos, controles de inmigración, tratamientos médicos, inversión de capital, entre otros. 
+
+\section{Modelación}
 El problema de máxima diversidad (Maximum Diversity Problem), consiste en elegir M elementos de un conjunto de N elementos tal que las suma de las distancias entre los elementos elegidos sea la máxima posible. Catalogado como un problema NP-Hard en 1993 por Kou, Glover y Dhit, el problema está formalmente estipulado bajo la siguiente fórmulas de función objetivo a maximizar y restricción de tamaño:
 
 $$\sum_{i=1}^{n-1} \sum_{j=i+1}^n d_{ij}x_ix_j$$
 $$\sum_{i=1}^{n}x_i<m$$ 
-Donde $n$ es la cardinalidad de elementos del conjunto, $m$ la cantidad de elementos elegidos, $d_{ij}$ es la distancia entre el elemento $i$ y el elemento $j$, $x_i$ es una función booleana que toma el valor de 1 si el elemento $i$ fue elegido, 0 si no fue elegido. Estas definiciones son las utilizadas en menciones posteriores en caso de omitirse una definición en el momento.
- 
-Las aplicaciones de este problema se pueden  encontrar en estudios genéticos, sistemas ecológicos, controles de inmigración, tratamientos médicos, entre otros. Ha sido un caso de estudio para la aplicación de heurísticas y metaheurísticas, particularmente para la búsqueda local. Fue catalogado como un problema NP-Hard en 1993 por Kou, Glover y Dhit al reducir el problema de clique a MDP.
-
-El presente artículo presenta un estudio sencillo de la aplicación de metaheurísticas para la resolución de este problema. Se realiza un estudio comparativo de las técnicas de Local Search (LS), Iterated Local Search (ILS), Tabu Search (TS), Genetic Algorithm (GA) y Scatter Search (SS) en las intancias del problema en los sets SOM, GKD y MDG de MDPLIB de optsicom.es.
-
-\end{abstract}
+Donde $n$ es la cardinalidad de elementos del conjunto, $m$ la cantidad de elementos elegidos, $d_{ij}$ es la distancia entre el elemento $i$ y el elemento $j$, $x_i$ es una función booleana que toma el valor de 1 si el elemento $i$ fue elegido, 0 si no fue elegido. Estas definiciones son las utilizadas en menciones posteriores en caso de omitirse una definición en el momento. Fue catalogado como un problema NP-Hard en 1993 por Kou, Glover y Dhit al reducir el problema de clique a MDP.
 
 \section{Trabajos Previos}
 El problema de máxima diversidad ha sido estudiado aplicando múltiples heurísticas y metahaurísticas. En general todas las heurísticas estudiadas presentan buenos resultados, sin embargo, se destacan las de búsqueda local al poseer resultados de mejor calidad para la mayor parte de los casos de prueba.
